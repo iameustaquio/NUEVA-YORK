@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="date=no, telephone=no, address=no, email=no">
 <title>Nueva York · Mapa del viaje</title>
 <style>
   :root{ --navy:#1c3a4a; --terracotta:#c96a3f; --cream:#f7f3ea; --ink:#26241f; --paper:#fffdf8; --line:#e7ddc9; }
@@ -365,11 +366,28 @@ function updateAllResponsive(){
 const pointers = new Map();
 let pinchStartDist = null, pinchStartVB = null;
 const DRAG_THRESHOLD = 6;
+const POINTER_STALE_MS = 1200;
 function ptDist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
 
+/* No usamos setPointerCapture (se comió los clics de los marcadores en
+   pruebas anteriores), así que si el dedo se levanta fuera del propio
+   SVG —cosa fácil en visores embebidos como Documents, cuya barra de
+   herramientas puede robar el gesto— el 'pointerup' nunca llega y ese
+   dedo se queda "fantasma" en el mapa. El siguiente toque con un solo
+   dedo entonces cuenta como 2 punteros y el mapa hace zoom en vez de
+   desplazarse. Por eso: escuchamos también en window (más probabilidad
+   de capturar el final del gesto pase lo que pase) y, además, se
+   descarta cualquier puntero que lleve más de 1.2s sin actualizarse. */
+function pruneStalePointers(exceptId){
+  const now = performance.now();
+  pointers.forEach(function(p, id){
+    if(id!==exceptId && now-p.lastSeen > POINTER_STALE_MS) pointers.delete(id);
+  });
+}
 svg.addEventListener('pointerdown', function(e){
   stopVbAnim();
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:e.clientX, startY:e.clientY});
+  pruneStalePointers(e.pointerId);
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:e.clientX, startY:e.clientY, lastSeen:performance.now()});
   if(pointers.size===2){
     const pts = [...pointers.values()];
     pinchStartDist = ptDist(pts[0],pts[1]);
@@ -378,9 +396,10 @@ svg.addEventListener('pointerdown', function(e){
 });
 svg.addEventListener('pointermove', function(e){
   if(!pointers.has(e.pointerId)) return;
+  pruneStalePointers(e.pointerId);
   const prev = pointers.get(e.pointerId);
   const dx = e.clientX-prev.x, dy = e.clientY-prev.y;
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:prev.startX, startY:prev.startY});
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:prev.startX, startY:prev.startY, lastSeen:performance.now()});
   const rect = svg.getBoundingClientRect();
   if(pointers.size===1){
     const moved = Math.hypot(e.clientX-prev.startX, e.clientY-prev.startY);
@@ -410,6 +429,11 @@ function releasePointer(e){
 svg.addEventListener('pointerup', releasePointer);
 svg.addEventListener('pointercancel', releasePointer);
 svg.addEventListener('pointerleave', releasePointer);
+window.addEventListener('pointerup', releasePointer, {capture:true});
+window.addEventListener('pointercancel', releasePointer, {capture:true});
+function clearAllPointers(){ pointers.clear(); pinchStartDist=null; pinchStartVB=null; }
+window.addEventListener('blur', clearAllPointers);
+document.addEventListener('visibilitychange', function(){ if(document.hidden) clearAllPointers(); });
 svg.addEventListener('wheel', function(e){
   e.preventDefault();
   zoomBy(e.deltaY>0 ? 1.12 : 0.89);
