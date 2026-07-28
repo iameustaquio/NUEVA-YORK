@@ -2,38 +2,33 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="format-detection" content="date=no, telephone=no, address=no, email=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NY Mapa">
 <title>Nueva York · Mapa del viaje</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.0.0/dist/maplibre-gl.css">
 <style>
-  :root{ --navy:#1c3a4a; --terracotta:#c96a3f; --cream:#f7f3ea; --ink:#26241f; --paper:#fffdf8; --line:#e7ddc9; }
+  :root{
+    --navy:#1c3a4a; --terracotta:#c96a3f; --cream:#f7f3ea; --ink:#26241f; --paper:#fffdf8; --line:#e7ddc9;
+    --card-bg:rgba(255,253,248,.96); --card-bg-solid:#fffdf8; --card-ink:#26241f; --card-sub:#7a7466;
+    --dark-navy:rgba(28,58,74,.94);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --card-bg:rgba(30,32,30,.92); --card-bg-solid:#201f1c; --card-ink:#f1ece0; --card-sub:#a9a190;
+      --line:#3a382f; --cream:#232220; --dark-navy:rgba(18,30,38,.94);
+    }
+  }
   *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:var(--ink);overflow:hidden;}
-  #map-wrap{position:absolute;inset:0;background:#eef0e6;overflow:hidden;}
-  #mapsvg{width:100%;height:100%;display:block;touch-action:none;}
-  #zoomctl{ position:absolute; bottom:14px; right:10px; z-index:900; display:flex; flex-direction:column; gap:1px;
-    background:rgba(255,253,248,.96); border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.2);}
-  #zoomctl button{ width:38px; height:38px; border:none; background:transparent; font-size:19px; font-weight:700; color:var(--navy); cursor:pointer;}
-  #zoomctl button:first-child{ border-bottom:1px solid var(--line); }
-
-  #locctl{ position:absolute; bottom:106px; right:10px; z-index:900; background:rgba(255,253,248,.96);
-    border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,.2); transition:background .15s; }
-  #locctl button{ width:38px; height:38px; border:none; background:transparent; font-size:16px; color:var(--navy); cursor:pointer; border-radius:50%; }
-  #locctl button.loading{ opacity:.4; }
-  #locctl.active{ background:var(--navy); }
-  #locctl.active button{ color:#fff; }
-
-  .marker-pop{ animation:markerPop .38s cubic-bezier(.34,1.56,.64,1) both; transform-origin:0 0; }
-  @keyframes markerPop{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
-  .user-pulse{ animation:userPulse 1.8s ease-out infinite; }
-  @keyframes userPulse{ 0%{ r:6; opacity:.55; } 100%{ r:16; opacity:0; } }
+  html,body{margin:0;height:100%;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:var(--ink);overflow:hidden;background:var(--cream);}
+  #map{position:absolute;inset:0;background:#eef0e6;}
+  .maplibregl-ctrl-attrib{font-size:9px;}
 
   #tabs{
     position:absolute; top:10px; left:10px; right:10px; z-index:1000;
-    display:flex; gap:4px; overflow-x:auto; background:rgba(255,253,248,.96); border-radius:10px;
+    display:flex; gap:4px; overflow-x:auto; background:var(--card-bg); border-radius:10px;
     padding:6px; box-shadow:0 2px 10px rgba(0,0,0,.15); -webkit-overflow-scrolling:touch;
   }
   .tab{ border:none; background:transparent; padding:7px 11px; font-size:12.5px; font-weight:700;
@@ -42,17 +37,20 @@
 
   #daycard{
     position:absolute; top:58px; left:10px; z-index:900; max-width:300px;
-    background:rgba(28,58,74,.94); color:#fff; border-radius:10px; padding:9px 12px;
+    background:var(--dark-navy); color:#fff; border-radius:10px; padding:9px 12px;
     box-shadow:0 2px 10px rgba(0,0,0,.2); font-size:12px; line-height:1.4; display:none;
+    animation:cardIn .25s ease both;
   }
+  @keyframes cardIn{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
   #daycard b{font-family:Georgia,serif; font-size:14px; display:block; margin-bottom:2px;}
   #daycard .goal{opacity:.85; font-style:italic;}
   #daycard .close{position:absolute; top:4px; right:8px; cursor:pointer; opacity:.7; font-size:13px;}
   #playbtn{ position:absolute; top:2px; right:26px; background:transparent; border:none; color:#fff; font-size:13px; cursor:pointer; padding:2px 4px; opacity:.9; }
   #playbtn.active{ opacity:1; }
+  #weatherchip{ margin-top:5px; font-size:11px; opacity:.9; display:none; }
 
   #legend{
-    position:absolute; top:58px; left:10px; z-index:900; background:rgba(255,253,248,.96);
+    position:absolute; top:58px; left:10px; z-index:900; background:var(--card-bg); color:var(--card-ink);
     border-radius:10px; padding:10px 12px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:12px; max-width:230px;
   }
   #legend .item{display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;}
@@ -61,21 +59,20 @@
   #legend .title{font-weight:700; color:var(--navy); margin-bottom:6px; font-size:12.5px;}
 
   #tlegend{
-    position:absolute; bottom:14px; left:10px; z-index:900; background:rgba(255,253,248,.96);
+    position:absolute; bottom:14px; left:10px; z-index:900; background:var(--card-bg); color:var(--card-ink);
     border-radius:10px; padding:7px 10px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:11px; display:none;
   }
   #tlegend span{margin-right:10px;}
-  #attrib{ position:absolute; bottom:4px; right:6px; z-index:900; font-size:9px; color:#7a7466; background:rgba(255,253,248,.8); padding:1px 5px; border-radius:4px;}
 
   #reopen{
-    position:absolute; top:58px; right:10px; z-index:900; background:rgba(255,253,248,.96);
-    border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--navy);
+    position:absolute; top:58px; right:10px; z-index:900; background:var(--card-bg); color:var(--navy);
+    border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:700;
     box-shadow:0 2px 8px rgba(0,0,0,.15); cursor:pointer; display:none;
   }
 
   #routestatus{
     position:absolute; bottom:60px; left:50%; transform:translateX(-50%); z-index:950;
-    background:rgba(28,58,74,.94); color:#fff; padding:6px 12px; border-radius:20px;
+    background:var(--dark-navy); color:#fff; padding:6px 12px; border-radius:20px;
     font-size:11.5px; font-weight:600; box-shadow:0 2px 10px rgba(0,0,0,.2); display:none;
     align-items:center; gap:6px; white-space:nowrap; pointer-events:none;
   }
@@ -84,15 +81,17 @@
 
   #toast{
     position:absolute; left:50%; bottom:60px; transform:translateX(-50%); z-index:1300;
-    background:rgba(28,58,74,.96); color:#fff; padding:8px 14px; border-radius:20px;
+    background:var(--dark-navy); color:#fff; padding:8px 14px; border-radius:20px;
     font-size:12px; box-shadow:0 2px 10px rgba(0,0,0,.25); display:none; max-width:82%; text-align:center;
   }
 
   #popcard{
     position:absolute; left:10px; right:10px; bottom:14px; z-index:1200; max-width:420px; margin:0 auto;
-    background:var(--paper); border-radius:12px; padding:12px 14px; box-shadow:0 4px 20px rgba(0,0,0,.25);
-    font-size:12.5px; line-height:1.45; display:none;
+    background:var(--card-bg-solid); color:var(--card-ink); border-radius:12px; padding:12px 14px;
+    box-shadow:0 4px 20px rgba(0,0,0,.25); font-size:12.5px; line-height:1.45; display:none;
+    animation:popIn .22s cubic-bezier(.34,1.4,.64,1) both;
   }
+  @keyframes popIn{ from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
   #popcard .close{position:absolute; top:6px; right:10px; cursor:pointer; font-size:15px; color:#999;}
   #popcard b{color:var(--navy); font-size:13.5px;}
   #popcard .badge{display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; padding:1px 6px; border-radius:8px; margin-right:4px; margin-bottom:4px;}
@@ -100,37 +99,58 @@
   .badge-food{background:#fde8d8; color:#b5502a;}
   #popcard .links{margin-top:6px; display:flex; flex-direction:column; gap:6px;}
   #popcard a{display:inline-block; color:var(--navy); font-weight:700; font-size:12px;}
+
+  #timeline{
+    position:absolute; left:0; right:0; bottom:0; z-index:800; display:none;
+    gap:8px; overflow-x:auto; padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to top, rgba(0,0,0,.18), transparent);
+    -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+  }
+  .tchip{
+    --c:#999; flex:none; scroll-snap-align:center; cursor:pointer; border:none; text-align:left;
+    background:var(--card-bg-solid); color:var(--card-ink); border-radius:10px; padding:6px 10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.2); border-bottom:3px solid var(--c); min-width:108px; max-width:150px;
+  }
+  .tchip.active{ box-shadow:0 2px 12px rgba(0,0,0,.35); transform:translateY(-2px); }
+  .tchip .tnum{ display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%;
+    background:var(--c); color:#fff; font-size:9.5px; font-weight:700; margin-right:4px; }
+  .tchip .ttime{ font-size:10px; font-weight:700; color:var(--terracotta); }
+  .tchip .tname{ display:block; font-size:11px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+
+  #zoomwrap .maplibregl-ctrl-group{ box-shadow:0 2px 8px rgba(0,0,0,.2); }
+
+  .userloc-marker{ pointer-events:none; }
 </style>
 </head>
 <body>
-<div id="map-wrap"><svg id="mapsvg"></svg></div>
+<div id="map"></div>
 <div id="tabs"></div>
-<div id="daycard"><span class="close" onclick="document.getElementById('daycard').style.display='none'; document.getElementById('reopen').style.display='block';">✕</span><button id="playbtn" onclick="togglePlay()" title="Reproducir el día">▶️</button><b id="dc-title"></b><span class="goal" id="dc-goal"></span></div>
+<div id="daycard"><span class="close" onclick="closeDayCard()">✕</span><button id="playbtn" onclick="togglePlay()" title="Reproducir el día">▶️</button><b id="dc-title"></b><span class="goal" id="dc-goal"></span><div id="weatherchip"></div></div>
 <div id="legend"></div>
 <button id="reopen" onclick="reopenCard()">ℹ️ info del día</button>
 <div id="tlegend"><span>🚶 a pie</span><span>🚇 metro</span><span>🚌 bus</span><span>🚕 taxi</span><span>🚲 bici</span><span>🚡 teleférico</span></div>
-<div id="attrib">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color:#7a7466;">OpenStreetMap</a> contributors</div>
-<div id="zoomctl"><button onclick="zoomBy(0.75)">+</button><button onclick="zoomBy(1/0.75)">−</button></div>
-<div id="locctl"><button id="locbtn" onclick="locateMe()" title="Centrar en mi ubicación">📍</button></div>
 <div id="routestatus"><span class="spin">🔄</span> Calculando rutas a pie…</div>
 <div id="toast"></div>
 <div id="popcard"></div>
+<div id="timeline"></div>
 
-<script>
+<script type="module">
+import { Map as MLMap, Marker, Popup, NavigationControl, GeolocateControl, AttributionControl, LngLatBounds } from 'https://unpkg.com/maplibre-gl@6.0.0/dist/maplibre-gl.mjs';
+
 /* ---------------------------------------------------------
-   Este mapa NO depende de ninguna librería externa: todo el
-   dibujo (zonas, rutas, números, horas, transporte) se genera
-   con SVG puro y funciona sin conexión. Las fotos de calles
-   reales se cargan como capa opcional por encima si hay red.
+   Este mapa usa MapLibre GL (vía CDN) para el motor de mapa,
+   ahora que se sirve desde un servidor real (GitHub Pages) en
+   vez de abrirse como archivo local: la limitación original que
+   nos hizo evitar librerías externas (CDNs colgados al abrir un
+   archivo local sin red) ya no aplica aquí. Sin conexión al cargar
+   la página, el mapa de fondo y las rutas no cargarán, pero eso ya
+   se asume: la página en sí ya necesitó red para llegar al móvil.
 --------------------------------------------------------- */
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const HOTEL = {name:"YOTEL New York Times Square", lat:40.7590, lng:-74.0021};
 const DAY_COLORS = {1:"#c96a3f",2:"#1c3a4a",3:"#5a8f5e",4:"#b5502a",5:"#4a72a0",6:"#8a4fae",7:"#c9a13f"};
 function gmaps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
 function gplace(id){ return "https://www.google.com/maps/place/?q=place_id:" + id; }
 
-/* Estado en memoria (nunca localStorage/sessionStorage): se pierde
-   al recargar la página, que es justo lo que queremos. */
 let userLoc = null;
 const routeCache = new Map();
 let pendingRouteRequests = 0;
@@ -258,319 +278,32 @@ const ZONES = [
 ];
 
 /* ---------------------------------------------------------
-   PROYECCIÓN (Web Mercator, igual que usan las teselas reales)
+   HELPERS
 --------------------------------------------------------- */
-function project(lat,lng,zoom){
-  const n = Math.pow(2,zoom);
-  const x = (lng+180)/360*n*256;
+function circlePolygon(lat, lng, radiusMeters, points){
+  points = points || 64;
+  const coords = [];
   const latRad = lat*Math.PI/180;
-  const y = (1 - Math.log(Math.tan(latRad)+1/Math.cos(latRad))/Math.PI)/2*n*256;
-  return {x:x,y:y};
-}
-function metersToPixels(meters, lat, zoom){
-  return meters * Math.pow(2,zoom) / (156543.03392 * Math.cos(lat*Math.PI/180));
-}
-function chooseZoom(bounds, targetW, targetH){
-  for(let z=18; z>=10; z--){
-    const p1 = project(bounds.maxLat, bounds.minLng, z);
-    const p2 = project(bounds.minLat, bounds.maxLng, z);
-    const w = Math.abs(p2.x-p1.x), h = Math.abs(p2.y-p1.y);
-    if(w<=targetW && h<=targetH) return z;
+  const metersPerDegLat = 111320;
+  const metersPerDegLng = 111320*Math.cos(latRad);
+  for(let i=0;i<=points;i++){
+    const theta = (i/points)*2*Math.PI;
+    coords.push([lng + radiusMeters*Math.cos(theta)/metersPerDegLng, lat + radiusMeters*Math.sin(theta)/metersPerDegLat]);
   }
-  return 10;
+  return [coords];
 }
-function boundsOfPoints(pts){
-  let minLat=Infinity,maxLat=-Infinity,minLng=Infinity,maxLng=-Infinity;
-  pts.forEach(p=>{ minLat=Math.min(minLat,p.lat); maxLat=Math.max(maxLat,p.lat); minLng=Math.min(minLng,p.lng); maxLng=Math.max(maxLng,p.lng); });
-  return {minLat,maxLat,minLng,maxLng};
-}
-
-/* ---------------------------------------------------------
-   SVG helpers
---------------------------------------------------------- */
-const svg = document.getElementById('mapsvg');
-function el(tag,attrs){
-  const e = document.createElementNS(SVG_NS, tag);
-  for(const k in attrs) e.setAttribute(k, attrs[k]);
-  return e;
-}
-function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
-/* Rectángulo de fondo que cubre tanto el encuadre de partida como el de
-   llegada, para que no se vea el hueco en blanco mientras el viewBox
-   viaja animado de uno a otro. */
-function bgRectAttrs(a, b){
-  const minX = Math.min(a.x, b.x) - 5000, minY = Math.min(a.y, b.y) - 5000;
-  const maxX = Math.max(a.x+a.w, b.x+b.w) + 5000, maxY = Math.max(a.y+a.h, b.y+b.h) + 5000;
-  return {x:minX, y:minY, width:maxX-minX, height:maxY-minY, fill:'#eef0e6'};
-}
-
-/* ---------------------------------------------------------
-   PAN / ZOOM manual (arrastrar y pellizcar) — no dependemos
-   del zoom nativo del navegador porque algunos visores lo bloquean
---------------------------------------------------------- */
-let vb = {x:0,y:0,w:100,h:100};
-let responsiveEls = [];
-function applyVB(){ svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); scheduleTileUpdate(); updateAllResponsive(); }
-
-/* Animación del viewBox (transiciones suaves): usada al cambiar de
-   pestaña, al usar +/-, al seguir la ubicación y al reproducir un día.
-   Un id incremental permite cancelar una animación en curso sin más
-   estado que comparar "sigue siendo la más reciente". */
-let vbAnimId = 0;
-function stopVbAnim(){ vbAnimId++; }
-function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
-function animateVBTo(targetVb, duration, onDone){
-  const myId = ++vbAnimId;
-  const from = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
-  const t0 = performance.now();
-  function step(now){
-    if(myId !== vbAnimId) return;
-    const t = Math.min(1, (now-t0)/duration);
-    const e = easeInOutCubic(t);
-    vb = {
-      x: from.x+(targetVb.x-from.x)*e,
-      y: from.y+(targetVb.y-from.y)*e,
-      w: from.w+(targetVb.w-from.w)*e,
-      h: from.h+(targetVb.h-from.h)*e
-    };
-    applyVB();
-    if(t<1) requestAnimationFrame(step);
-    else if(onDone) onDone();
-  }
-  requestAnimationFrame(step);
-}
-function zoomBy(factor){
-  stopVbAnim(); stopPlayback();
-  const cx = vb.x+vb.w/2, cy = vb.y+vb.h/2;
-  const w = vb.w*factor, h = vb.h*factor;
-  animateVBTo({x:cx-w/2, y:cy-h/2, w:w, h:h}, 220);
-}
-window.zoomBy = zoomBy;
-
-/* Elementos "responsive": mantienen su tamaño visual constante en
-   pantalla sin importar el zoom del mapa (números, iconos, horas) */
-function addResponsive(container, x, y, buildFn, extraTransform){
-  const g = el('g',{});
-  buildFn(g);
-  container.appendChild(g);
-  const item = {g:g, x:x, y:y, extra: extraTransform || ''};
-  responsiveEls.push(item);
-  updateOneResponsive(item);
-  return g;
-}
-function updateOneResponsive(item){
-  const comp = vb.w / (refVbW || vb.w);
-  item.g.setAttribute('transform', `translate(${item.x},${item.y}) ${item.extra} scale(${comp})`);
-}
-function updateAllResponsive(){
-  for(let i=0;i<responsiveEls.length;i++) updateOneResponsive(responsiveEls[i]);
-}
-
-const pointers = new Map();
-let pinchStartDist = null, pinchStartVB = null;
-const DRAG_THRESHOLD = 6;
-const POINTER_STALE_MS = 1200;
-function ptDist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
-
-/* No usamos setPointerCapture (se comió los clics de los marcadores en
-   pruebas anteriores), así que si el dedo se levanta fuera del propio
-   SVG —cosa fácil en visores embebidos como Documents, cuya barra de
-   herramientas puede robar el gesto— el 'pointerup' nunca llega y ese
-   dedo se queda "fantasma" en el mapa. El siguiente toque con un solo
-   dedo entonces cuenta como 2 punteros y el mapa hace zoom en vez de
-   desplazarse. Por eso: escuchamos también en window (más probabilidad
-   de capturar el final del gesto pase lo que pase) y, además, se
-   descarta cualquier puntero que lleve más de 1.2s sin actualizarse. */
-function pruneStalePointers(exceptId){
-  const now = performance.now();
-  pointers.forEach(function(p, id){
-    if(id!==exceptId && now-p.lastSeen > POINTER_STALE_MS) pointers.delete(id);
-  });
-}
-svg.addEventListener('pointerdown', function(e){
-  stopVbAnim();
-  pruneStalePointers(e.pointerId);
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:e.clientX, startY:e.clientY, lastSeen:performance.now()});
-  if(pointers.size===2){
-    const pts = [...pointers.values()];
-    pinchStartDist = ptDist(pts[0],pts[1]);
-    pinchStartVB = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
-  }
-});
-svg.addEventListener('pointermove', function(e){
-  if(!pointers.has(e.pointerId)) return;
-  pruneStalePointers(e.pointerId);
-  const prev = pointers.get(e.pointerId);
-  const dx = e.clientX-prev.x, dy = e.clientY-prev.y;
-  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:prev.startX, startY:prev.startY, lastSeen:performance.now()});
-  const rect = svg.getBoundingClientRect();
-  if(pointers.size===1){
-    const moved = Math.hypot(e.clientX-prev.startX, e.clientY-prev.startY);
-    if(moved > DRAG_THRESHOLD){
-      stopPlayback();
-      if(followMode) setFollowMode(false);
-      const scaleX = vb.w/rect.width, scaleY = vb.h/rect.height;
-      vb.x -= dx*scaleX; vb.y -= dy*scaleY;
-      applyVB();
-    }
-  } else if(pointers.size===2 && pinchStartDist){
-    stopPlayback();
-    if(followMode) setFollowMode(false);
-    const pts = [...pointers.values()];
-    const newDist = ptDist(pts[0],pts[1]) || 1;
-    const factor = pinchStartDist/newDist;
-    const cx = pinchStartVB.x+pinchStartVB.w/2, cy = pinchStartVB.y+pinchStartVB.h/2;
-    vb.w = pinchStartVB.w*factor; vb.h = pinchStartVB.h*factor;
-    vb.x = cx-vb.w/2; vb.y = cy-vb.h/2;
-    applyVB();
-  }
-});
-function releasePointer(e){
-  pointers.delete(e.pointerId);
-  if(pointers.size<2){ pinchStartDist=null; pinchStartVB=null; }
-}
-svg.addEventListener('pointerup', releasePointer);
-svg.addEventListener('pointercancel', releasePointer);
-svg.addEventListener('pointerleave', releasePointer);
-window.addEventListener('pointerup', releasePointer, {capture:true});
-window.addEventListener('pointercancel', releasePointer, {capture:true});
-function clearAllPointers(){ pointers.clear(); pinchStartDist=null; pinchStartVB=null; }
-window.addEventListener('blur', clearAllPointers);
-document.addEventListener('visibilitychange', function(){ if(document.hidden) clearAllPointers(); });
-svg.addEventListener('wheel', function(e){
-  e.preventDefault();
-  zoomBy(e.deltaY>0 ? 1.12 : 0.89);
-}, {passive:false});
-
-function renderTilesAt(container, tileZoom, refZoom, vbNow){
-  while(container.firstChild) container.removeChild(container.firstChild);
-  const factor = Math.pow(2, refZoom - tileZoom);
-  const tileSizeInRef = 256 * factor;
-  const minTileX = Math.floor(vbNow.x / tileSizeInRef) - 1;
-  const maxTileX = Math.floor((vbNow.x+vbNow.w) / tileSizeInRef) + 1;
-  const minTileY = Math.floor(vbNow.y / tileSizeInRef) - 1;
-  const maxTileY = Math.floor((vbNow.y+vbNow.h) / tileSizeInRef) + 1;
-  const n = Math.pow(2, tileZoom);
-  let count=0;
-  for(let ty=minTileY; ty<=maxTileY; ty++){
-    for(let tx=minTileX; tx<=maxTileX; tx++){
-      if(tx<0||ty<0||tx>=n||ty>=n) continue;
-      if(count++ > 110) return;
-      const url = `https://tile.openstreetmap.org/${tileZoom}/${tx}/${ty}.png`;
-      const img = el('image',{ x: tx*tileSizeInRef, y: ty*tileSizeInRef, width:tileSizeInRef, height:tileSizeInRef, preserveAspectRatio:'none'});
-      img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', url);
-      img.setAttribute('href', url);
-      container.appendChild(img);
-    }
-  }
-}
-let refZoom = 13, refVbW = 100, tileLayerEl = null, tileZoomTimer = null;
-function updateTiles(){
-  if(!tileLayerEl) return;
-  const effectiveZoom = refZoom + Math.log2(refVbW / vb.w);
-  const tileZoom = Math.max(3, Math.min(19, Math.round(effectiveZoom)));
-  renderTilesAt(tileLayerEl, tileZoom, refZoom, vb);
-}
-function scheduleTileUpdate(){
-  if(tileZoomTimer) clearTimeout(tileZoomTimer);
-  tileZoomTimer = setTimeout(updateTiles, 180);
-}
-
-function popupHtml(stop,dayLabel){
-  let badges='';
-  if(stop.isNew) badges+='<span class="badge badge-new">Nuevo</span>';
-  if(stop.cat==='food') badges+='<span class="badge badge-food">Comida</span>';
-  let html=`${badges?'<div>'+badges+'</div>':''}<b>${stop.n}</b>`;
-  if(stop.t) html+=` <span style="color:#c96a3f;font-weight:700;">· ${stop.t}</span>`;
-  if(dayLabel) html+=`<div style="font-size:10.5px;color:#7a7466;margin-top:1px;">${dayLabel}</div>`;
-  if(stop.note) html+=`<div style="margin-top:5px;">${stop.note}</div>`;
-  let links = '';
-  if(stop.link) links += `<a href="${stop.link}" target="_blank" rel="noopener">📍 Ver en Google Maps</a>`;
-  if(stop.lat!=null && stop.lng!=null) links += `<a href="${gDirectionsUrl(stop.lat,stop.lng)}" target="_blank" rel="noopener">🧭 Cómo llegar a pie</a>`;
-  if(links) html += `<div class="links">${links}</div>`;
-  return html;
-}
-function showPopup(stop,dayLabel){
-  const box = document.getElementById('popcard');
-  box.innerHTML = '<span class="close" onclick="document.getElementById(\'popcard\').style.display=\'none\'">✕</span>' + popupHtml(stop,dayLabel);
-  box.style.display='block';
-}
-
-function addMarker(container, x, y, number, color, big, timeLabel, onClick, delayIndex){
-  const r = big ? 14 : 10;
-  const g = addResponsive(container, x, y, function(g){
-    g.style.cursor = 'pointer';
-    const pop = el('g',{class:'marker-pop', style:`animation-delay:${Math.min(delayIndex||0,8)*45}ms`});
-    pop.appendChild(el('circle',{r:r, fill:color, stroke:'#fff', 'stroke-width':2}));
-    const txt = el('text',{'text-anchor':'middle', dy:'0.35em', 'font-size': big?12:10.5, 'font-weight':700, fill:'#fff'});
-    txt.textContent = number;
-    pop.appendChild(txt);
-    if(timeLabel){
-      const tt = el('text',{y:-(r+7), 'text-anchor':'middle', 'font-size':9.5, 'font-weight':700, fill:'#1c3a4a',
-        stroke:'#fffdf8', 'stroke-width':3, 'paint-order':'stroke'});
-      tt.textContent = timeLabel;
-      pop.appendChild(tt);
-    }
-    g.appendChild(pop);
-  });
-  g.addEventListener('click', onClick);
-  return g;
-}
-
-function addRoute(container, projPts, day, opts){
-  opts = opts || {};
-  const color = DAY_COLORS[day.id];
-  const pointsAttr = projPts.map(p=>`${p.x},${p.y}`).join(' ');
-  container.appendChild(el('polyline',{points:pointsAttr, fill:'none', stroke:color, 'stroke-width':opts.weight||3,
-    'stroke-opacity':opts.opacity||.8, 'stroke-dasharray':'2,7', 'stroke-linecap':'round', 'vector-effect':'non-scaling-stroke'}));
-
-  for(let i=0;i<projPts.length-1;i++){
-    const a=projPts[i], b=projPts[i+1];
-    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
-    const angle = Math.atan2(b.y-a.y, b.x-a.x) * 180/Math.PI;
-    addResponsive(container, mx, my, function(g){
-      g.appendChild(el('path',{d:'M -5,-4 L 5,0 L -5,4 Z', fill:color, opacity:.85}));
-    }, `rotate(${angle})`);
-    if(opts.transportIcons && day.stops[i+1].tr){
-      const trText = day.stops[i+1].tr;
-      const emoji = trText.split(' ')[0];
-      const iconG = addResponsive(container, mx, my, function(g){
-        g.style.cursor = 'pointer';
-        g.appendChild(el('circle',{cx:14, cy:-14, r:10, fill:'#fffdf8', stroke:'#e7ddc9', 'stroke-width':1}));
-        const iconTxt = el('text',{x:14, y:-14, 'text-anchor':'middle', dy:'0.35em', 'font-size':11});
-        iconTxt.textContent = emoji;
-        g.appendChild(iconTxt);
-      });
-      iconG.addEventListener('click', function(){ showPopup({n:'Transporte', t:null, note:trText}, `Día ${day.id} · ${day.label}`); });
-    }
-  }
-}
-
-/* ---------------------------------------------------------
-   RUTAS REALES A PIE (OSRM) — mejora progresiva: si hay
-   conexión, sustituye el tramo recto por la calle real; si no,
-   se queda la línea recta como respaldo. Se cachean en memoria
-   (Map, nunca localStorage/sessionStorage) para no repetir
-   peticiones al cambiar de pestaña o volver a la vista General.
---------------------------------------------------------- */
-function isWalkingTr(tr){
-  if(!tr) return true;
-  return tr.trim().startsWith('🚶');
-}
+function isWalkingTr(tr){ if(!tr) return true; return tr.trim().startsWith('🚶'); }
 function findWalkingChains(stops){
   const chains = [];
   let current = [0];
   for(let i=1;i<stops.length;i++){
-    if(isWalkingTr(stops[i].tr)){
-      current.push(i);
-    } else {
-      if(current.length>1) chains.push(current.slice());
-      current = [i];
-    }
+    if(isWalkingTr(stops[i].tr)) current.push(i);
+    else { if(current.length>1) chains.push(current.slice()); current=[i]; }
   }
   if(current.length>1) chains.push(current.slice());
   return chains;
 }
+function chainKey(latlngs){ return latlngs.map(function(p){ return p.lat.toFixed(5)+','+p.lng.toFixed(5); }).join('|'); }
 function fetchWalkingGeometry(latlngs){
   const coordStr = latlngs.map(function(p){ return p.lng+','+p.lat; }).join(';');
   const url = 'https://router.project-osrm.org/route/v1/foot/'+coordStr+'?overview=full&geometries=geojson';
@@ -579,11 +312,19 @@ function fetchWalkingGeometry(latlngs){
     return res.json();
   }).then(function(data){
     if(!data.routes || !data.routes[0]) throw new Error('sin ruta');
-    return data.routes[0].geometry.coordinates.map(function(c){ return {lat:c[1], lng:c[0]}; });
+    return data.routes[0].geometry.coordinates;
   });
 }
-function chainKey(latlngs){
-  return latlngs.map(function(p){ return p.lat.toFixed(5)+','+p.lng.toFixed(5); }).join('|');
+
+/* ---------------------------------------------------------
+   TOAST / INDICADOR DE RUTAS
+--------------------------------------------------------- */
+function showToast(msg, ms){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.style.display='none'; }, ms || 4200);
 }
 function updateRouteStatusUI(){
   document.getElementById('routestatus').style.display = pendingRouteRequests>0 ? 'flex' : 'none';
@@ -598,38 +339,183 @@ function noteRouteFailure(){
     }
   }, 900);
 }
-function drawRealLine(pathLatLngs, day, zoom, container){
-  const projPath = pathLatLngs.map(function(p){ return project(p.lat,p.lng,zoom); });
-  const pointsAttr = projPath.map(function(p){ return p.x+','+p.y; }).join(' ');
-  const realLine = el('polyline',{points:pointsAttr, fill:'none', stroke:DAY_COLORS[day.id], 'stroke-width':4,
-    'stroke-opacity':0.9, 'stroke-linecap':'round', 'stroke-linejoin':'round', 'vector-effect':'non-scaling-stroke'});
-  container.appendChild(realLine);
-  /* La ruta real llega con retraso (hay que esperar a OSRM), así que se
-     "traza" progresivamente en vez de aparecer de golpe: se ve como si
-     se acabara de calcular delante de tus ojos. */
-  try{
-    const len = realLine.getTotalLength();
-    realLine.style.strokeDasharray = len;
-    realLine.style.strokeDashoffset = len;
-    realLine.getBoundingClientRect();
-    realLine.style.transition = 'stroke-dashoffset 900ms ease-out';
-    requestAnimationFrame(function(){ realLine.style.strokeDashoffset = '0'; });
-  }catch(err){ /* getTotalLength no disponible: la línea ya se ve completa igualmente */ }
+
+/* ---------------------------------------------------------
+   MAPA (MapLibre GL)
+--------------------------------------------------------- */
+const FALLBACK_STYLE = { version:8, sources:{}, layers:[{id:'bg', type:'background', paint:{'background-color':'#eef0e6'}}] };
+const map = new MLMap({
+  container:'map',
+  style:'https://tiles.openfreemap.org/styles/liberty',
+  center:[HOTEL.lng, HOTEL.lat],
+  zoom:13,
+  attributionControl:false,
+  dragRotate:false,
+  touchPitch:false
+});
+map.touchZoomRotate.disableRotation();
+map.addControl(new AttributionControl({compact:true}));
+map.addControl(new NavigationControl({showCompass:false}), 'bottom-right');
+const geolocateCtl = new GeolocateControl({positionOptions:{enableHighAccuracy:true}, trackUserLocation:true, showUserHeading:true});
+map.addControl(geolocateCtl, 'bottom-right');
+geolocateCtl.on('geolocate', function(e){ userLoc = {lat:e.coords.latitude, lng:e.coords.longitude}; });
+
+let styleReady = false;
+map.on('load', function(){ styleReady = true; ensureLayers(); });
+map.on('error', function(e){ /* fallos sueltos de teselas/estilo no deben romper la página */ });
+setTimeout(function(){
+  if(!styleReady){
+    showToast('⚠️ No se pudo cargar el mapa de fondo (sin conexión). El itinerario sigue funcionando.');
+    map.setStyle(FALLBACK_STYLE);
+  }
+}, 6000);
+window.addEventListener('resize', function(){ map.resize(); });
+
+/* ---------------------------------------------------------
+   CAPAS: zonas, rutas por día y marcadores
+--------------------------------------------------------- */
+let layersReady = false;
+const dayMarkers = {};      // id -> [{marker, stop, index}]
+const transportMarkers = {}; // id -> [marker]
+const realSegmentsByDay = {}; // id -> [ [ [lng,lat], ... ], ... ]
+let hotelMarker = null;
+
+function ensureLayers(){
+  if(layersReady) return;
+  layersReady = true;
+
+  if(!map.getSource('zones')){
+    map.addSource('zones', {type:'geojson', data:{type:'FeatureCollection', features: ZONES.map(function(z){
+      return {type:'Feature', properties:{name:z.name}, geometry:{type:'Polygon', coordinates:circlePolygon(z.lat,z.lng,z.r)}};
+    })}});
+    map.addLayer({id:'zones-fill', type:'fill', source:'zones', paint:{'fill-color':'#1c3a4a','fill-opacity':0.06}});
+    map.addLayer({id:'zones-line', type:'line', source:'zones', paint:{'line-color':'#1c3a4a','line-width':1,'line-dasharray':[3,3]}});
+    map.addLayer({id:'zones-labels', type:'symbol', source:'zones', layout:{'text-field':['get','name'],'text-size':11,'text-font':['Noto Sans Bold']},
+      paint:{'text-color':'#1c3a4a','text-halo-color':'#fffdf8','text-halo-width':1.6}});
+  }
+
+  DAYS.forEach(function(day){
+    const fallbackId = 'day'+day.id+'-fallback';
+    const realId = 'day'+day.id+'-real';
+    if(!map.getSource(fallbackId)){
+      map.addSource(fallbackId, {type:'geojson', data:{type:'Feature', geometry:{type:'LineString',
+        coordinates: day.stops.map(function(s){ return [s.lng,s.lat]; })}}});
+      map.addLayer({id:fallbackId, type:'line', source:fallbackId,
+        paint:{'line-color':DAY_COLORS[day.id], 'line-width':3, 'line-opacity':.8, 'line-dasharray':[1,2.6]}});
+    }
+    if(!map.getSource(realId)){
+      map.addSource(realId, {type:'geojson', data:{type:'FeatureCollection', features:[]}});
+      map.addLayer({id:realId, type:'line', source:realId,
+        paint:{'line-color':DAY_COLORS[day.id], 'line-width':4, 'line-opacity':0, 'line-opacity-transition':{duration:700}}});
+    }
+  });
+
+  createMarkers();
+  if(!hotelMarker){
+    const el = document.createElement('div');
+    el.className = 'ml-hotel-marker';
+    Object.assign(el.style, {width:'32px',height:'32px',borderRadius:'50%',background:'#c96a3f',border:'2.5px solid #fff',
+      boxShadow:'0 2px 6px rgba(0,0,0,.35)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'15px', cursor:'pointer'});
+    el.textContent = '🏨';
+    el.addEventListener('click', function(){ showPopup({n:HOTEL.name, t:null, lat:HOTEL.lat, lng:HOTEL.lng, link:gmaps(HOTEL.name)}, null); });
+    hotelMarker = new Marker({element:el}).setLngLat([HOTEL.lng, HOTEL.lat]).addTo(map);
+  }
+
+  applyCurrentView();
 }
-function enhanceWalkingRoutes(day, container, zoom){
+
+function markerEl(color, number, big){
+  const el = document.createElement('div');
+  el.className = 'stop-marker';
+  const size = big ? 30 : 22;
+  Object.assign(el.style, {
+    width:size+'px', height:size+'px', borderRadius:'50%', background:color, border:'2px solid #fff',
+    boxShadow:'0 1px 5px rgba(0,0,0,.35)', display:'flex', alignItems:'center', justifyContent:'center',
+    color:'#fff', fontWeight:'700', fontSize:(big?'12px':'10px'), cursor:'pointer',
+    animation:'markerPop .35s cubic-bezier(.34,1.5,.64,1) both'
+  });
+  el.style.animationDelay = (Math.min(number-1,8)*40)+'ms';
+  el.textContent = number;
+  return el;
+}
+const styleSheet = document.createElement('style');
+styleSheet.textContent = '@keyframes markerPop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}';
+document.head.appendChild(styleSheet);
+
+function createMarkers(){
+  DAYS.forEach(function(day){
+    dayMarkers[day.id] = day.stops.map(function(stop, i){
+      const color = stop.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
+      const el = markerEl(color, i+1, true);
+      el.addEventListener('click', function(){
+        showPopup(stop, currentView.type==='general' ? ('Día '+day.id+' · '+day.label) : null);
+        highlightChip(i);
+      });
+      const marker = new Marker({element:el}).setLngLat([stop.lng, stop.lat]).addTo(map);
+      return {marker:marker, stop:stop, index:i};
+    });
+    transportMarkers[day.id] = [];
+    for(let i=0;i<day.stops.length-1;i++){
+      const trText = day.stops[i+1].tr;
+      if(!trText) continue;
+      const a = day.stops[i], b = day.stops[i+1];
+      const mid = [(a.lng+b.lng)/2, (a.lat+b.lat)/2];
+      const el = document.createElement('div');
+      Object.assign(el.style, {width:'22px',height:'22px',borderRadius:'50%',background:'var(--card-bg-solid,#fffdf8)',
+        border:'1px solid #e7ddc9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', cursor:'pointer',
+        boxShadow:'0 1px 4px rgba(0,0,0,.2)'});
+      el.textContent = trText.split(' ')[0];
+      el.addEventListener('click', function(){ showPopup({n:'Transporte', t:null, note:trText}, 'Día '+day.id+' · '+day.label); });
+      const marker = new Marker({element:el}).setLngLat(mid).addTo(map);
+      transportMarkers[day.id].push(marker);
+    }
+  });
+}
+
+function setDayVisible(id, visible){
+  (dayMarkers[id]||[]).forEach(function(m){ m.marker.getElement().style.display = visible?'flex':'none'; });
+  (transportMarkers[id]||[]).forEach(function(m){ m.getElement().style.display = visible?'flex':'none'; });
+  ['day'+id+'-fallback','day'+id+'-real'].forEach(function(lid){
+    if(map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', visible?'visible':'none');
+  });
+}
+function setZonesVisible(visible){
+  ['zones-fill','zones-line','zones-labels'].forEach(function(lid){
+    if(map.getLayer(lid)) map.setLayoutProperty(lid, 'visibility', visible?'visible':'none');
+  });
+}
+function setHotelMarkerVisible(visible){
+  if(hotelMarker) hotelMarker.getElement().style.display = visible?'flex':'none';
+}
+
+/* ---------------------------------------------------------
+   RUTAS REALES A PIE (OSRM) — caché en memoria (nunca
+   localStorage/sessionStorage), reutilizada entre pestañas.
+--------------------------------------------------------- */
+function appendRealSegment(day, coords){
+  if(!realSegmentsByDay[day.id]) realSegmentsByDay[day.id] = [];
+  realSegmentsByDay[day.id].push(coords);
+  const src = map.getSource('day'+day.id+'-real');
+  if(!src) return;
+  src.setData({type:'FeatureCollection', features: realSegmentsByDay[day.id].map(function(c){
+    return {type:'Feature', geometry:{type:'LineString', coordinates:c}};
+  })});
+  if(map.getLayer('day'+day.id+'-real')) map.setPaintProperty('day'+day.id+'-real', 'line-opacity', 0.9);
+}
+function enhanceWalkingRoutesFor(day){
   const chains = findWalkingChains(day.stops);
   chains.forEach(function(chainIdx){
     const latlngs = chainIdx.map(function(i){ return {lat:day.stops[i].lat, lng:day.stops[i].lng}; });
     const key = chainKey(latlngs);
     if(routeCache.has(key)){
       const cached = routeCache.get(key);
-      if(cached !== 'FAILED') drawRealLine(cached, day, zoom, container);
+      if(cached!=='FAILED') appendRealSegment(day, cached);
       return;
     }
     pendingRouteRequests++; updateRouteStatusUI();
-    fetchWalkingGeometry(latlngs).then(function(pathLatLngs){
-      routeCache.set(key, pathLatLngs);
-      drawRealLine(pathLatLngs, day, zoom, container);
+    fetchWalkingGeometry(latlngs).then(function(coords){
+      routeCache.set(key, coords);
+      appendRealSegment(day, coords);
     }).catch(function(){
       routeCache.set(key, 'FAILED');
       noteRouteFailure();
@@ -640,252 +526,180 @@ function enhanceWalkingRoutes(day, container, zoom){
 }
 
 /* ---------------------------------------------------------
-   TOAST discreto (avisos de red / ubicación)
+   POPUP (tarjeta inferior)
 --------------------------------------------------------- */
-function showToast(msg, ms){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.style.display='none'; }, ms || 4000);
+function popupHtml(stop,dayLabel){
+  let badges='';
+  if(stop.isNew) badges+='<span class="badge badge-new">Nuevo</span>';
+  if(stop.cat==='food') badges+='<span class="badge badge-food">Comida</span>';
+  let html=(badges?'<div>'+badges+'</div>':'')+'<b>'+stop.n+'</b>';
+  if(stop.t) html+=' <span style="color:#c96a3f;font-weight:700;">· '+stop.t+'</span>';
+  if(dayLabel) html+='<div style="font-size:10.5px;color:var(--card-sub);margin-top:1px;">'+dayLabel+'</div>';
+  if(stop.note) html+='<div style="margin-top:5px;">'+stop.note+'</div>';
+  let links = '';
+  if(stop.link) links += '<a href="'+stop.link+'" target="_blank" rel="noopener">📍 Ver en Google Maps</a>';
+  if(stop.lat!=null && stop.lng!=null) links += '<a href="'+gDirectionsUrl(stop.lat,stop.lng)+'" target="_blank" rel="noopener">🧭 Cómo llegar a pie</a>';
+  if(links) html += '<div class="links">'+links+'</div>';
+  return html;
 }
+function showPopup(stop,dayLabel){
+  const box = document.getElementById('popcard');
+  box.innerHTML = '<span class="close" onclick="window.closePopup()">✕</span>' + popupHtml(stop,dayLabel);
+  box.style.display='block';
+  setTimelineVisible(false);
+}
+function closePopup(){
+  document.getElementById('popcard').style.display='none';
+  if(currentView.type==='day') setTimelineVisible(true);
+}
+window.closePopup = closePopup;
 
 /* ---------------------------------------------------------
-   GEOLOCALIZACIÓN — centrar el mapa en la ubicación actual y,
-   si se activa, seguir en vivo mientras caminas (watchPosition).
-   Cualquier arrastre manual del mapa desactiva el seguimiento,
-   para no pelear con lo que el usuario intenta ver.
+   LÍNEA DE TIEMPO DEL DÍA
 --------------------------------------------------------- */
-let userMarkerG = null;
-let followMode = false;
-let watchId = null;
-function removeUserMarker(){
-  if(!userMarkerG) return;
-  if(userMarkerG.parentNode) userMarkerG.parentNode.removeChild(userMarkerG);
-  const idx = responsiveEls.findIndex(function(item){ return item.g===userMarkerG; });
-  if(idx>=0) responsiveEls.splice(idx,1);
-  userMarkerG = null;
-}
-function drawUserMarker(){
-  if(!userLoc) return;
-  removeUserMarker();
-  const p = project(userLoc.lat, userLoc.lng, refZoom);
-  userMarkerG = addResponsive(svg, p.x, p.y, function(g){
-    g.appendChild(el('circle',{class:'user-pulse', r:6, fill:'rgba(74,114,160,.35)'}));
-    g.appendChild(el('circle',{r:6, fill:'#4a72a0', stroke:'#fff', 'stroke-width':2}));
+function setTimelineVisible(v){ document.getElementById('timeline').style.display = v?'flex':'none'; }
+function hideTimeline(){ document.getElementById('timeline').innerHTML=''; setTimelineVisible(false); }
+function buildTimeline(day){
+  const track = document.getElementById('timeline');
+  track.innerHTML='';
+  day.stops.forEach(function(s,i){
+    const chip = document.createElement('button');
+    chip.className='tchip';
+    chip.style.setProperty('--c', DAY_COLORS[day.id]);
+    chip.innerHTML = '<span class="tnum">'+(i+1)+'</span><span class="ttime">'+(s.t||'')+'</span><span class="tname">'+s.n+'</span>';
+    chip.addEventListener('click', function(){ focusStop(day, i, null); });
+    track.appendChild(chip);
   });
+  setTimelineVisible(true);
 }
-function centerOnUser(animate){
-  if(!userLoc) return;
-  const p = project(userLoc.lat, userLoc.lng, refZoom);
-  const target = {x:p.x-vb.w/2, y:p.y-vb.h/2, w:vb.w, h:vb.h};
-  if(animate){ animateVBTo(target, 500); } else { vb = target; applyVB(); }
-  drawUserMarker();
+function highlightChip(i){
+  const chips = document.querySelectorAll('#timeline .tchip');
+  chips.forEach(function(c,idx){ c.classList.toggle('active', idx===i); });
+  if(chips[i]) chips[i].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
 }
-function setFollowMode(on){
-  followMode = on;
-  document.getElementById('locctl').classList.toggle('active', on);
-  if(!on && watchId!=null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+function focusStop(day, index, dayLabel){
+  const s = day.stops[index];
+  map.flyTo({center:[s.lng, s.lat], zoom:Math.max(map.getZoom(), 15.5), duration:700});
+  showPopup(s, dayLabel);
+  highlightChip(index);
 }
-function locateMe(){
-  if(followMode){ setFollowMode(false); return; }
-  const btn = document.getElementById('locbtn');
-  if(!navigator.geolocation){ showToast('⚠️ Tu navegador no admite geolocalización.'); return; }
-  btn.classList.add('loading');
-  navigator.geolocation.getCurrentPosition(function(pos){
-    btn.classList.remove('loading');
-    userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude};
-    centerOnUser(true);
-    setFollowMode(true);
-    watchId = navigator.geolocation.watchPosition(function(p2){
-      userLoc = {lat:p2.coords.latitude, lng:p2.coords.longitude};
-      if(followMode) centerOnUser(true); else drawUserMarker();
-    }, function(){
-      showToast('⚠️ Se perdió la señal de ubicación.');
-    }, {enableHighAccuracy:true, maximumAge:5000, timeout:15000});
-  }, function(){
-    btn.classList.remove('loading');
-    showToast('⚠️ No se pudo obtener tu ubicación. Revisa los permisos.');
-  }, {enableHighAccuracy:true, timeout:10000, maximumAge:30000});
-}
-window.locateMe = locateMe;
 
 /* ---------------------------------------------------------
-   RENDER: día individual
+   CLIMA (Open-Meteo, sin clave de API)
 --------------------------------------------------------- */
-function renderDay(day){
+const TRIP_START = '2026-08-07';
+function tripDateForDay(id){
+  const d = new Date(TRIP_START+'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate()+(id-1));
+  return d.toISOString().slice(0,10);
+}
+const WMO_EMOJI = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌦️',
+  61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const weatherCache = new Map();
+function renderWeatherChip(w){
+  const el = document.getElementById('weatherchip');
+  if(!w){ el.style.display='none'; return; }
+  const emoji = WMO_EMOJI[w.code] || '🌡️';
+  el.textContent = emoji+' '+Math.round(w.tmax)+'°/'+Math.round(w.tmin)+'° · '+w.precip+'% lluvia';
+  el.style.display='block';
+}
+function fetchWeatherFor(day){
+  const dateStr = tripDateForDay(day.id);
+  if(weatherCache.has(dateStr)){ renderWeatherChip(weatherCache.get(dateStr)); return; }
+  renderWeatherChip(null);
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude=40.75&longitude=-74.0&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America%2FNew_York&start_date='+dateStr+'&end_date='+dateStr;
+  fetch(url).then(function(res){ if(!res.ok) throw new Error('weather'); return res.json(); })
+    .then(function(data){
+      if(!data.daily || !data.daily.time || !data.daily.time.length) throw new Error('sin datos aún');
+      const w = {tmax:data.daily.temperature_2m_max[0], tmin:data.daily.temperature_2m_min[0],
+        code:data.daily.weathercode[0], precip:data.daily.precipitation_probability_max[0]};
+      weatherCache.set(dateStr, w);
+      renderWeatherChip(w);
+    }).catch(function(){ /* fuera de rango de previsión o sin red: se omite en silencio, es un extra */ });
+}
+
+/* ---------------------------------------------------------
+   VISTAS: día / general
+--------------------------------------------------------- */
+let currentView = {type:'general'};
+const dayToggleState = {};
+DAYS.forEach(function(d){ dayToggleState[d.id]=true; });
+
+function applyCurrentView(){
+  if(!layersReady) return;
+  if(currentView.type==='day'){
+    DAYS.forEach(function(d){ setDayVisible(d.id, d.id===currentView.day.id); });
+    setZonesVisible(false);
+    setHotelMarkerVisible(false);
+  } else {
+    DAYS.forEach(function(d){ setDayVisible(d.id, dayToggleState[d.id]); });
+    setZonesVisible(true);
+    setHotelMarkerVisible(true);
+  }
+}
+
+function showDay(day){
   stopPlayback();
-  const prevVb = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
-  const prevZoom = refZoom;
-  clearSvg();
-  responsiveEls = [];
-  userMarkerG = null;
+  currentView = {type:'day', day:day};
   document.getElementById('legend').style.display='none';
   document.getElementById('tlegend').style.display='block';
-  document.getElementById('popcard').style.display='none';
-
-  const bounds = boundsOfPoints(day.stops);
-  const wrap = document.getElementById('map-wrap');
-  const targetW = Math.max(wrap.clientWidth-80,300), targetH = Math.max(wrap.clientHeight-160,300);
-  const zoom = chooseZoom(bounds, targetW, targetH);
-  const projStops = day.stops.map(s=>Object.assign({}, s, project(s.lat,s.lng,zoom)));
-  const xs = projStops.map(p=>p.x), ys = projStops.map(p=>p.y);
-  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-  const padX = Math.max((maxX-minX)*0.18, 60), padY = Math.max((maxY-minY)*0.18, 60);
-  const targetVb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
-
-  /* Transición suave: en vez de saltar directamente al encuadre del
-     día, convertimos el encuadre anterior al espacio de proyección del
-     nuevo zoom (misma proyección Web Mercator, solo cambia la potencia
-     de 2) y animamos desde ahí hasta el destino real. */
-  let startVb;
-  if(hasRenderedOnce){
-    const scale = Math.pow(2, zoom - prevZoom);
-    startVb = {x:prevVb.x*scale, y:prevVb.y*scale, w:prevVb.w*scale, h:prevVb.h*scale};
-  } else {
-    startVb = targetVb;
-  }
-  vb = startVb;
-  applyVB();
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-
-  svg.appendChild(el('rect', bgRectAttrs(startVb, targetVb)));
-  tileLayerEl = el('g',{opacity:0.95});
-  svg.appendChild(tileLayerEl);
-  refZoom = zoom; refVbW = targetVb.w;
-  updateTiles();
-
-  const routeLayer = el('g',{});
-  svg.appendChild(routeLayer);
-  addRoute(routeLayer, projStops, day, {weight:4, opacity:.9, transportIcons:true});
-  enhanceWalkingRoutes(day, routeLayer, zoom);
-
-  const markerLayer = el('g',{});
-  svg.appendChild(markerLayer);
-  projStops.forEach((s,i)=>{
-    const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
-    addMarker(markerLayer, s.x, s.y, i+1, color, true, s.t, function(){ showPopup(s, null); }, i);
-  });
-
-  document.getElementById('dc-title').textContent = `Día ${day.id} · ${day.label} — ${day.title}`;
+  closePopup();
+  applyCurrentView();
+  const bounds = new LngLatBounds();
+  day.stops.forEach(function(s){ bounds.extend([s.lng, s.lat]); });
+  map.fitBounds(bounds, {padding:{top:130, bottom:170, left:50, right:50}, duration: hasRenderedOnce?650:0, maxZoom:18});
+  document.getElementById('dc-title').textContent = 'Día '+day.id+' · '+day.label+' — '+day.title;
   document.getElementById('dc-goal').textContent = day.goal;
   document.getElementById('daycard').style.display='block';
   document.getElementById('reopen').style.display='none';
-
-  if(userLoc) drawUserMarker();
-  if(hasRenderedOnce) animateVBTo(targetVb, 550);
+  buildTimeline(day);
+  fetchWeatherFor(day);
+  if(layersReady) enhanceWalkingRoutesFor(day);
   hasRenderedOnce = true;
 }
-
-/* ---------------------------------------------------------
-   RENDER: general
---------------------------------------------------------- */
-let dayGroups = {};
-function renderGeneral(){
+function showGeneral(){
   stopPlayback();
-  const prevVb = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
-  const prevZoom = refZoom;
-  clearSvg();
-  responsiveEls = [];
-  userMarkerG = null;
-  dayGroups = {};
+  currentView = {type:'general'};
   document.getElementById('daycard').style.display='none';
   document.getElementById('reopen').style.display='none';
   document.getElementById('tlegend').style.display='none';
-  document.getElementById('popcard').style.display='none';
+  closePopup();
+  hideTimeline();
+  applyCurrentView();
+  const bounds = new LngLatBounds();
+  bounds.extend([HOTEL.lng, HOTEL.lat]);
+  DAYS.forEach(function(d){ d.stops.forEach(function(s){ bounds.extend([s.lng,s.lat]); }); });
+  ZONES.forEach(function(z){ bounds.extend([z.lng,z.lat]); });
+  map.fitBounds(bounds, {padding:40, duration: hasRenderedOnce?650:0});
+  if(layersReady) DAYS.forEach(function(d){ enhanceWalkingRoutesFor(d); });
 
-  const allStops = [HOTEL].concat(DAYS.flatMap(d=>d.stops)).concat(ZONES);
-  const bounds = boundsOfPoints(allStops);
-  const wrap = document.getElementById('map-wrap');
-  const targetW = Math.max(wrap.clientWidth-40,300), targetH = Math.max(wrap.clientHeight-40,300);
-  const zoom = chooseZoom(bounds, targetW, targetH);
-
-  const projAll = allStops.map(s=>project(s.lat,s.lng,zoom));
-  const xs = projAll.map(p=>p.x), ys = projAll.map(p=>p.y);
-  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-  const padX = Math.max((maxX-minX)*0.08, 40), padY = Math.max((maxY-minY)*0.08, 40);
-  const targetVb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
-
-  let startVb;
-  if(hasRenderedOnce){
-    const scale = Math.pow(2, zoom - prevZoom);
-    startVb = {x:prevVb.x*scale, y:prevVb.y*scale, w:prevVb.w*scale, h:prevVb.h*scale};
-  } else {
-    startVb = targetVb;
-  }
-  vb = startVb;
-  applyVB();
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-
-  svg.appendChild(el('rect', bgRectAttrs(startVb, targetVb)));
-  tileLayerEl = el('g',{opacity:0.9});
-  svg.appendChild(tileLayerEl);
-  refZoom = zoom; refVbW = targetVb.w;
-  updateTiles();
-
-  const zoneLayer = el('g',{});
-  svg.appendChild(zoneLayer);
-  ZONES.forEach(z=>{
-    const p = project(z.lat,z.lng,zoom);
-    const r = metersToPixels(z.r, z.lat, zoom);
-    zoneLayer.appendChild(el('circle',{cx:p.x, cy:p.y, r:r, fill:'#1c3a4a', 'fill-opacity':0.06, stroke:'#1c3a4a', 'stroke-width':1, 'stroke-dasharray':'4,5'}));
-    const lbl = el('text',{x:p.x, y:p.y, 'text-anchor':'middle', 'font-size':11, 'font-weight':700, fill:'#1c3a4a',
-      stroke:'#fffdf8', 'stroke-width':4, 'paint-order':'stroke'});
-    lbl.textContent = z.name;
-    zoneLayer.appendChild(lbl);
-  });
-
-  DAYS.forEach(day=>{
-    const g = el('g',{});
-    svg.appendChild(g);
-    const projStops = day.stops.map(s=>Object.assign({}, s, project(s.lat,s.lng,zoom)));
-    addRoute(g, projStops, day, {weight:2.2, opacity:.55});
-    enhanceWalkingRoutes(day, g, zoom);
-    projStops.forEach((s,i)=>{
-      const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
-      addMarker(g, s.x, s.y, i+1, color, false, null, function(){ showPopup(s, `Día ${day.id} · ${day.label}`); }, i);
-    });
-    dayGroups[day.id] = g;
-  });
-
-  const hp = project(HOTEL.lat,HOTEL.lng,zoom);
-  const hg = addResponsive(svg, hp.x, hp.y, function(g){
-    g.style.cursor='pointer';
-    g.appendChild(el('circle',{r:15, fill:'#c96a3f', stroke:'#fff', 'stroke-width':2.5}));
-    const hicon = el('text',{'text-anchor':'middle', dy:'0.35em', 'font-size':13});
-    hicon.textContent='🏨'; g.appendChild(hicon);
-  });
-  hg.addEventListener('click', function(){ showPopup({n:HOTEL.name, t:null, lat:HOTEL.lat, lng:HOTEL.lng, link:gmaps(HOTEL.name)}, null); });
-
-  let html = `<div class="title">Días del viaje</div>`;
-  DAYS.forEach(d=>{
-    html += `<label class="item"><input type="checkbox" checked onchange="toggleDay(${d.id},this.checked)"><span class="swatch" style="background:${DAY_COLORS[d.id]}"></span>Día ${d.id} · ${d.label}</label>`;
+  let html = '<div class="title">Días del viaje</div>';
+  DAYS.forEach(function(d){
+    html += '<label class="item"><input type="checkbox" '+(dayToggleState[d.id]?'checked':'')+' onchange="toggleDay('+d.id+',this.checked)"><span class="swatch" style="background:'+DAY_COLORS[d.id]+'"></span>Día '+d.id+' · '+d.label+'</label>';
   });
   document.getElementById('legend').innerHTML = html;
   document.getElementById('legend').style.display='block';
-
-  if(userLoc) drawUserMarker();
-  if(hasRenderedOnce) animateVBTo(targetVb, 550);
   hasRenderedOnce = true;
 }
-
 function toggleDay(id, visible){
-  const g = dayGroups[id];
-  if(!g) return;
-  g.style.display = visible ? '' : 'none';
+  dayToggleState[id] = visible;
+  if(currentView.type==='general') setDayVisible(id, visible);
 }
 window.toggleDay = toggleDay;
 
+function closeDayCard(){
+  document.getElementById('daycard').style.display='none';
+  document.getElementById('reopen').style.display='block';
+}
 function reopenCard(){
   document.getElementById('daycard').style.display='block';
   document.getElementById('reopen').style.display='none';
 }
 window.reopenCard = reopenCard;
+window.closeDayCard = closeDayCard;
 
 /* ---------------------------------------------------------
-   MODO "REPRODUCIR DÍA" — recorre las paradas en orden,
-   centrando el mapa en cada una y abriendo su tarjeta, útil
-   para repasar el plan del día antes de salir.
+   MODO "REPRODUCIR DÍA"
 --------------------------------------------------------- */
 let playState = null;
 function stopPlayback(){
@@ -895,69 +709,40 @@ function stopPlayback(){
   if(btn){ btn.textContent='▶️'; btn.classList.remove('active'); }
 }
 function playStep(day, idx){
-  if(!playState || playState.dayId !== day.id) return;
+  if(!playState || playState.dayId!==day.id) return;
   if(idx >= day.stops.length){ stopPlayback(); return; }
   playState.index = idx;
-  const stop = day.stops[idx];
-  const p = project(stop.lat, stop.lng, refZoom);
-  animateVBTo({x:p.x-vb.w/2, y:p.y-vb.h/2, w:vb.w, h:vb.h}, 700);
-  showPopup(stop, null);
-  playState.timer = setTimeout(function(){ playStep(day, idx+1); }, 2600);
+  focusStop(day, idx, null);
+  playState.timer = setTimeout(function(){ playStep(day, idx+1); }, 2700);
 }
 function togglePlay(){
-  const activeTab = document.querySelector('.tab.active');
-  if(!activeTab || activeTab.id==='tab-general') return;
-  const dayId = Number(activeTab.id.replace('tab-',''));
-  if(playState && playState.dayId===dayId){ stopPlayback(); return; }
+  if(currentView.type!=='day') return;
+  const day = currentView.day;
+  if(playState && playState.dayId===day.id){ stopPlayback(); return; }
   stopPlayback();
-  if(followMode) setFollowMode(false);
-  playState = {dayId:dayId, index:0, timer:null};
+  playState = {dayId:day.id, index:0, timer:null};
   const btn = document.getElementById('playbtn');
   if(btn){ btn.textContent='⏸️'; btn.classList.add('active'); }
-  playStep(DAYS.find(function(d){ return d.id===dayId; }), 0);
+  playStep(day, 0);
 }
 window.togglePlay = togglePlay;
 
 /* ---------------------------------------------------------
-   TABS
+   PESTAÑAS
 --------------------------------------------------------- */
-let tabHtml = `<button class="tab active" id="tab-general" onclick="selectTab('general')">🗺️ General</button>`;
-DAYS.forEach(d=>{ tabHtml += `<button class="tab" id="tab-${d.id}" onclick="selectTab(${d.id})">${d.label}</button>`; });
+let tabHtml = '<button class="tab active" id="tab-general" onclick="selectTab(\'general\')">🗺️ General</button>';
+DAYS.forEach(function(d){ tabHtml += '<button class="tab" id="tab-'+d.id+'" onclick="selectTab('+d.id+')">'+d.label+'</button>'; });
 document.getElementById('tabs').innerHTML = tabHtml;
 
 function selectTab(id){
-  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(function(el){ el.classList.remove('active'); });
   document.getElementById('tab-'+id).classList.add('active');
-  if(id==='general') renderGeneral();
-  else renderDay(DAYS.find(d=>d.id===id));
+  if(id==='general') showGeneral();
+  else showDay(DAYS.find(function(d){ return d.id===id; }));
 }
 window.selectTab = selectTab;
 
-renderGeneral();
-
-/* Los navegadores embebidos (p.ej. Documents by Readdle) disparan 'resize'
-   solo porque su barra de herramientas se oculta/aparece al tocar la
-   pantalla. Un re-render completo en cada uno de esos casos cerraba de
-   golpe cualquier tarjeta que se acabara de abrir. Por eso se ignoran los
-   cambios de tamaño pequeños (ruido de la interfaz) y solo se reconstruye
-   el mapa ante un cambio real (girar el dispositivo). */
-let lastWrapW = document.getElementById('map-wrap').clientWidth;
-let lastWrapH = document.getElementById('map-wrap').clientHeight;
-let resizeTimer = null;
-window.addEventListener('resize', function(){
-  if(resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(function(){
-    const wrap = document.getElementById('map-wrap');
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    const changed = Math.abs(w-lastWrapW) > 40 || Math.abs(h-lastWrapH) > 120;
-    lastWrapW = w; lastWrapH = h;
-    if(!changed) return;
-    const activeTab = document.querySelector('.tab.active');
-    if(!activeTab) return;
-    const id = activeTab.id.replace('tab-','');
-    selectTab(id==='general' ? 'general' : Number(id));
-  }, 350);
-});
+showGeneral();
 </script>
 </body>
 </html>
