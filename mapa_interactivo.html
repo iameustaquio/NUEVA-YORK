@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva York · Mapa del viaje</title>
+<style>
+  :root{ --navy:#1c3a4a; --terracotta:#c96a3f; --cream:#f7f3ea; --ink:#26241f; --paper:#fffdf8; --line:#e7ddc9; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:var(--ink);overflow:hidden;}
+  #map-wrap{position:absolute;inset:0;background:#eef0e6;overflow:hidden;}
+  #mapsvg{width:100%;height:100%;display:block;touch-action:none;}
+  #zoomctl{ position:absolute; bottom:14px; right:10px; z-index:900; display:flex; flex-direction:column; gap:1px;
+    background:rgba(255,253,248,.96); border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  #zoomctl button{ width:38px; height:38px; border:none; background:transparent; font-size:19px; font-weight:700; color:var(--navy); cursor:pointer;}
+  #zoomctl button:first-child{ border-bottom:1px solid var(--line); }
+
+  #locctl{ position:absolute; bottom:106px; right:10px; z-index:900; background:rgba(255,253,248,.96);
+    border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  #locctl button{ width:38px; height:38px; border:none; background:transparent; font-size:16px; color:var(--navy); cursor:pointer; border-radius:50%; }
+  #locctl button.loading{ opacity:.4; }
+
+  #tabs{
+    position:absolute; top:10px; left:10px; right:10px; z-index:1000;
+    display:flex; gap:4px; overflow-x:auto; background:rgba(255,253,248,.96); border-radius:10px;
+    padding:6px; box-shadow:0 2px 10px rgba(0,0,0,.15); -webkit-overflow-scrolling:touch;
+  }
+  .tab{ border:none; background:transparent; padding:7px 11px; font-size:12.5px; font-weight:700;
+    color:#6b6455; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .tab.active{ background:var(--navy); color:#fff; }
+
+  #daycard{
+    position:absolute; top:58px; left:10px; z-index:900; max-width:300px;
+    background:rgba(28,58,74,.94); color:#fff; border-radius:10px; padding:9px 12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.2); font-size:12px; line-height:1.4; display:none;
+  }
+  #daycard b{font-family:Georgia,serif; font-size:14px; display:block; margin-bottom:2px;}
+  #daycard .goal{opacity:.85; font-style:italic;}
+  #daycard .close{position:absolute; top:4px; right:8px; cursor:pointer; opacity:.7; font-size:13px;}
+
+  #legend{
+    position:absolute; top:58px; left:10px; z-index:900; background:rgba(255,253,248,.96);
+    border-radius:10px; padding:10px 12px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:12px; max-width:230px;
+  }
+  #legend .item{display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;}
+  #legend input{margin:0;}
+  #legend .swatch{width:11px;height:11px;border-radius:50%;flex:none;}
+  #legend .title{font-weight:700; color:var(--navy); margin-bottom:6px; font-size:12.5px;}
+
+  #tlegend{
+    position:absolute; bottom:14px; left:10px; z-index:900; background:rgba(255,253,248,.96);
+    border-radius:10px; padding:7px 10px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:11px; display:none;
+  }
+  #tlegend span{margin-right:10px;}
+  #attrib{ position:absolute; bottom:4px; right:6px; z-index:900; font-size:9px; color:#7a7466; background:rgba(255,253,248,.8); padding:1px 5px; border-radius:4px;}
+
+  #reopen{
+    position:absolute; top:58px; right:10px; z-index:900; background:rgba(255,253,248,.96);
+    border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--navy);
+    box-shadow:0 2px 8px rgba(0,0,0,.15); cursor:pointer; display:none;
+  }
+
+  #routestatus{
+    position:absolute; bottom:60px; left:50%; transform:translateX(-50%); z-index:950;
+    background:rgba(28,58,74,.94); color:#fff; padding:6px 12px; border-radius:20px;
+    font-size:11.5px; font-weight:600; box-shadow:0 2px 10px rgba(0,0,0,.2); display:none;
+    align-items:center; gap:6px; white-space:nowrap; pointer-events:none;
+  }
+  #routestatus .spin{ display:inline-block; animation:spin 1s linear infinite; }
+  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  #toast{
+    position:absolute; left:50%; bottom:60px; transform:translateX(-50%); z-index:1300;
+    background:rgba(28,58,74,.96); color:#fff; padding:8px 14px; border-radius:20px;
+    font-size:12px; box-shadow:0 2px 10px rgba(0,0,0,.25); display:none; max-width:82%; text-align:center;
+  }
+
+  #popcard{
+    position:absolute; left:10px; right:10px; bottom:14px; z-index:1200; max-width:420px; margin:0 auto;
+    background:var(--paper); border-radius:12px; padding:12px 14px; box-shadow:0 4px 20px rgba(0,0,0,.25);
+    font-size:12.5px; line-height:1.45; display:none;
+  }
+  #popcard .close{position:absolute; top:6px; right:10px; cursor:pointer; font-size:15px; color:#999;}
+  #popcard b{color:var(--navy); font-size:13.5px;}
+  #popcard .badge{display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; padding:1px 6px; border-radius:8px; margin-right:4px; margin-bottom:4px;}
+  .badge-new{background:#dff0e2; color:#2b7a3d;}
+  .badge-food{background:#fde8d8; color:#b5502a;}
+  #popcard .links{margin-top:6px; display:flex; flex-direction:column; gap:6px;}
+  #popcard a{display:inline-block; color:var(--navy); font-weight:700; font-size:12px;}
+</style>
+</head>
+<body>
+<div id="map-wrap"><svg id="mapsvg"></svg></div>
+<div id="tabs"></div>
+<div id="daycard"><span class="close" onclick="document.getElementById('daycard').style.display='none'; document.getElementById('reopen').style.display='block';">✕</span><b id="dc-title"></b><span class="goal" id="dc-goal"></span></div>
+<div id="legend"></div>
+<button id="reopen" onclick="reopenCard()">ℹ️ info del día</button>
+<div id="tlegend"><span>🚶 a pie</span><span>🚇 metro</span><span>🚌 bus</span><span>🚕 taxi</span><span>🚲 bici</span><span>🚡 teleférico</span></div>
+<div id="attrib">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color:#7a7466;">OpenStreetMap</a> contributors</div>
+<div id="zoomctl"><button onclick="zoomBy(0.75)">+</button><button onclick="zoomBy(1/0.75)">−</button></div>
+<div id="locctl"><button id="locbtn" onclick="locateMe()" title="Centrar en mi ubicación">📍</button></div>
+<div id="routestatus"><span class="spin">🔄</span> Calculando rutas a pie…</div>
+<div id="toast"></div>
+<div id="popcard"></div>
+
+<script>
+/* ---------------------------------------------------------
+   Este mapa NO depende de ninguna librería externa: todo el
+   dibujo (zonas, rutas, números, horas, transporte) se genera
+   con SVG puro y funciona sin conexión. Las fotos de calles
+   reales se cargan como capa opcional por encima si hay red.
+--------------------------------------------------------- */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const HOTEL = {name:"YOTEL New York Times Square", lat:40.7590, lng:-74.0021};
+const DAY_COLORS = {1:"#c96a3f",2:"#1c3a4a",3:"#5a8f5e",4:"#b5502a",5:"#4a72a0",6:"#8a4fae",7:"#c9a13f"};
+function gmaps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
+function gplace(id){ return "https://www.google.com/maps/place/?q=place_id:" + id; }
+
+/* Estado en memoria (nunca localStorage/sessionStorage): se pierde
+   al recargar la página, que es justo lo que queremos. */
+let userLoc = null;
+const routeCache = new Map();
+let pendingRouteRequests = 0;
+let pendingFailureCount = 0;
+let routeFailureToastTimer = null;
+let toastTimer = null;
+
+function gDirectionsUrl(lat,lng){
+  const dest = lat+','+lng;
+  if(userLoc) return 'https://www.google.com/maps/dir/?api=1&origin='+userLoc.lat+','+userLoc.lng+'&destination='+dest+'&travelmode=walking';
+  return 'https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode=walking';
+}
+
+const DAYS = [
+ {id:1,label:"Vie 7",title:"Llegada y primera noche",goal:"Instalaros, ver el NY más icónico y acostaros pronto.",
+  stops:[
+   {t:"17:00",n:"YOTEL — llegada",lat:40.7590,lng:-74.0021,isHotel:true},
+   {t:"19:10",n:"Times Square",lat:40.7580,lng:-73.9855,note:"Primera vuelta, sin entrar en todas las tiendas todavía.",link:gmaps("Times Square New York"),tr:"🚶 15–20 min"},
+   {t:"20:15",n:"Cena: Lovely's Old Fashioned",lat:40.7603697,lng:-73.9909505,note:"Hamburguesas y aros de cebolla, abierto hasta tarde.",cat:"food",isNew:true,link:gplace("ChIJd4_SnFJZwokRBeuZ-YwGaUw"),tr:"🚶 9 min"},
+   {t:"21:40",n:"Bryant Park (exterior biblioteca)",lat:40.7536,lng:-73.9832,note:"Visita interior el sábado.",link:gmaps("Bryant Park New York"),tr:"🚶 10 min"},
+   {t:"22:30",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚕 taxi / 🚌 M42"}
+  ]},
+ {id:2,label:"Sáb 8",title:"Midtown, compras y teleférico",goal:"Bibliotecas, Quinta Avenida y Roosevelt Island de noche.",
+  stops:[
+   {t:"08:00",n:"Desayuno: Liberty Bagels Midtown",lat:40.7488,lng:-73.9910,note:"Bagel clásico con cream cheese o huevo y queso.",cat:"food",link:gmaps("Liberty Bagels Midtown NYC")},
+   {t:"09:00",n:"Bryant Park",lat:40.7536,lng:-73.9832,link:gmaps("Bryant Park New York"),tr:"🚶 12 min"},
+   {t:"09:30",n:"Biblioteca Schwarzman",lat:40.7532,lng:-73.9822,note:"Leones, vestíbulo y salas públicas.",link:gmaps("New York Public Library Stephen A Schwarzman Building"),tr:"🚶 3 min"},
+   {t:"10:20",n:"Rooftop SNFL",lat:40.7530,lng:-73.9819,note:"Gratuito, sábados 10:00–17:00.",link:"https://www.nypl.org/locations/snfl/event-center",tr:"🚶 2 min"},
+   {t:"11:00",n:"Grand Central Terminal",lat:40.7527,lng:-73.9772,link:gmaps("Grand Central Terminal"),tr:"🚶 6 min"},
+   {t:"11:40",n:"Chrysler Building (exterior)",lat:40.7516,lng:-73.9755,link:gmaps("Chrysler Building"),tr:"🚶 3 min"},
+   {t:"13:00",n:"Quinta Avenida y tiendas",lat:40.7605,lng:-73.9776,note:"Victoria's Secret, San Patricio, LEGO, FAO Schwarz, Apple.",link:gmaps("Fifth Avenue New York shopping"),tr:"🚶 12 min"},
+   {t:"~15:00",n:"Café: Ralph's Coffee",lat:40.7589962,lng:-73.9772973,note:"Justo en el bloque de compras, sin desvío.",cat:"food",isNew:true,link:gplace("ChIJMaNxh5tZwokRXA1h90zrKZk")},
+   {t:"18:00",n:"Hotel y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro / 🚕"},
+   {t:"19:45",n:"Cena Midtown East",lat:40.7550,lng:-73.9700,cat:"food",tr:"🚶"},
+   {t:"21:05",n:"Tramway Plaza",lat:40.7570,lng:-73.9553,tr:"🚶 evitar hora punta"},
+   {t:"21:15",n:"Teleférico Roosevelt Island",lat:40.7614,lng:-73.9498,note:"Manhattan iluminado + paseo por la orilla.",link:"https://www.rioc.ny.gov/community/transportation/tram",tr:"🚡 teleférico"},
+   {t:"23:00",n:"Regreso al YOTEL",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro F"}
+  ]},
+ {id:3,label:"Dom 9",title:"Harlem y Central Park (norte)",goal:"Gospel respetuoso + la parte menos turística del parque.",
+  stops:[
+   {t:"08:00",n:"Desayuno cerca del hotel",lat:40.7590,lng:-74.0025,isHotel:true},
+   {t:"08:45",n:"Metro hacia Harlem",lat:40.7900,lng:-73.9500,tr:"🚇 línea A/C"},
+   {t:"10:00",n:"Servicio gospel",lat:40.8090,lng:-73.9455,note:"Llegad 30–40 min antes; vestimenta cuidada, móvil guardado.",link:gmaps("Harlem gospel church New York"),tr:"🚶 5 min"},
+   {t:"11:40",n:"Paseo por Harlem",lat:40.8062,lng:-73.9478,tr:"🚶 8 min"},
+   {t:"13:10",n:"Entrada norte Central Park (Harlem Meer)",lat:40.7969,lng:-73.9494,link:gmaps("Charles A Dana Discovery Center Central Park"),tr:"🚶 12 min"},
+   {t:"13:10",n:"Conservatory Garden",lat:40.7947,lng:-73.9525,tr:"🚶 5 min"},
+   {t:"14:15",n:"North Woods / The Loch",lat:40.7962,lng:-73.9563,tr:"🚶 10 min"},
+   {t:"15:15",n:"Circuito en bicicleta",lat:40.7850,lng:-73.9650,tr:"🚲 Citi Bike"},
+   {t:"17:30",n:"Bethesda Terrace y Bow Bridge",lat:40.7735,lng:-73.9714,link:gmaps("Bethesda Terrace Central Park"),tr:"🚶"},
+   {t:"19:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro"}
+  ]},
+ {id:4,label:"Lun 10",title:"Historia Natural, Tribeca, SoHo y Greenwich",goal:"Museo por la mañana + ruta lineal Tribeca → SoHo → Greenwich.",
+  stops:[
+   {t:"~08:00",n:"Desayuno: Levain Bakery (UWS)",lat:40.779959,lng:-73.980298,note:"Abre a las 8:00, de camino al museo — sin desvío.",cat:"food",isNew:true,link:gplace("ChIJ6SmehIlYwokRaO14xlmbWZU")},
+   {t:"09:00",n:"Museo de Historia Natural",lat:40.7813,lng:-73.9740,link:gmaps("American Museum of Natural History"),tr:"🚶 3 min"},
+   {t:"12:10",n:"Metro hacia Tribeca",lat:40.7200,lng:-74.0060,tr:"🚇 línea C"},
+   {t:"13:00",n:"Bubby's Tribeca + fotomatón",lat:40.7186,lng:-74.0093,note:"120 Hudson St. Revelado analógico, tarda unos minutos.",link:"https://www.bubbys.com/",tr:"🚶 6 min"},
+   {t:"13:45",n:"Café: Rigor Hill Market",lat:40.719225,lng:-74.005995,note:"227 W Broadway — literalmente de camino a SoHo.",cat:"food",isNew:true,link:gplace("ChIJm0F0fiFZwokRfuBjDeS7w7U"),tr:"🚶 5 min"},
+   {t:"14:15",n:"SoHo y compras",lat:40.7233,lng:-74.0030,link:gmaps("SoHo New York shopping"),tr:"🚶 10 min"},
+   {t:"17:15",n:"A Shop of Things",lat:40.7183,lng:-73.9908,note:"30 Orchard St, regalos y objetos originales.",link:"https://ashopofthings.com/pages/asot-irl",tr:"🚶 15 min"},
+   {t:"17:45",n:"Washington Square Park",lat:40.7308,lng:-73.9973,link:gmaps("Washington Square Park"),tr:"🚶 6 min"},
+   {t:"18:30",n:"Cóctel: The Up & Up",lat:40.729700,lng:-74.000488,note:"~16–18$ el cóctel, sin entrada, ambiente cuidado.",cat:"bar",isNew:true,link:gplace("ChIJN0f2iJFZwokRt53h0ISm3eE"),tr:"🚶 3 min"},
+   {t:"19:15",n:"Cena: Joe's Pizza",lat:40.7306,lng:-74.0021,note:"7 Carmine St, porciones clásicas para compartir.",cat:"food",link:"https://www.joespizzanyc.com/locations2",tr:"🚶 5 min"},
+   {t:"20:15",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A/C/E"}
+  ]},
+ {id:5,label:"Mar 11",title:"Compras populares y SUMMIT",goal:"Mañana flexible, descanso real y SUMMIT al atardecer.",
+  stops:[
+   {t:"09:00",n:"Desayuno tranquilo",lat:40.7590,lng:-74.0025,isHotel:true},
+   {t:"10:15",n:"Target Times Square",lat:40.7573,lng:-73.9906,link:gmaps("Target Times Square NYC"),tr:"🚶 8 min"},
+   {t:"11:05",n:"Disney Store Times Square",lat:40.7592,lng:-73.9847,link:gmaps("Disney Store Times Square"),tr:"🚶 6 min"},
+   {t:"12:30",n:"Comida: Blue Dog Cookhouse & Bar",lat:40.762557,lng:-73.986967,note:"308 W 50th St, dentro de la zona de Times Square.",cat:"food",isNew:true,link:gplace("ChIJC6xz-lZYwokRd5Gv26A3RMA"),tr:"🚶 10 min"},
+   {t:"13:45",n:"Hotel y descanso",lat:40.7590,lng:-74.0021,isHotel:true},
+   {t:"16:30",n:"Hacia Grand Central",lat:40.7527,lng:-73.9772,tr:"🚇 línea 7"},
+   {t:"18:00",n:"SUMMIT One Vanderbilt",lat:40.7527,lng:-73.9787,note:"Entrad con luz, quedaos hasta el anochecer.",link:gmaps("SUMMIT One Vanderbilt"),tr:"🚶 2 min"},
+   {t:"20:45",n:"Cena en Midtown",lat:40.7555,lng:-73.9790,cat:"food",tr:"🚶"}
+  ]},
+ {id:6,label:"Mié 12",title:"Downtown, Brooklyn y rooftop",goal:"Ferry a la Libertad, 11-S, puente de Brooklyn, DUMBO y rooftop.",
+  stops:[
+   {t:"08:00",n:"Desayuno y salida",lat:40.7590,lng:-74.0025,isHotel:true,tr:"🚇 A/C/E"},
+   {t:"09:00",n:"Staten Island Ferry",lat:40.7011,lng:-74.0141,note:"Ida y vuelta: Estatua de la Libertad y skyline.",link:gmaps("Staten Island Ferry Terminal Manhattan"),tr:"⛴️ ferry"},
+   {t:"10:20",n:"Distrito Financiero",lat:40.7056,lng:-74.0134,note:"Battery Park → Charging Bull → Wall Street.",link:gmaps("Charging Bull New York"),tr:"🚶 10 min"},
+   {t:"11:30",n:"Oculus",lat:40.7115,lng:-74.0099,link:gmaps("Oculus Westfield World Trade Center"),tr:"🚶 8 min"},
+   {t:"13:30",n:"Museo del 11-S",lat:40.7115,lng:-74.0134,note:"2–2,5 horas.",link:gmaps("9/11 Memorial Museum"),tr:"🚶 3 min"},
+   {t:"15:45",n:"Memorial del 11-S",lat:40.7117,lng:-74.0129,tr:"🚶 2 min"},
+   {t:"17:00",n:"Cruzar el puente de Brooklyn",lat:40.7061,lng:-73.9969,link:gmaps("Brooklyn Bridge"),tr:"🚶 15 min"},
+   {t:"17:50",n:"Washington Street (DUMBO)",lat:40.7033,lng:-73.9894,note:"Foto clásica con el Manhattan Bridge.",link:gmaps("Washington Street DUMBO Brooklyn"),tr:"🚶 8 min"},
+   {t:"18:20",n:"Jane's Carousel / Brooklyn Bridge Park",lat:40.7023,lng:-73.9903,link:gmaps("Jane's Carousel Brooklyn"),tr:"🚶 5 min"},
+   {t:"19:10",n:"Squibb Park Bridge / Brooklyn Heights",lat:40.6995,lng:-73.9945,note:"Extra recortable si vais cansados.",link:gmaps("Squibb Park Bridge Brooklyn"),tr:"🚶 8 min"},
+   {t:"20:00",n:"Time Out Market DUMBO (rooftop)",lat:40.7024,lng:-73.9903,note:"55 Water St. Cena + terraza.",cat:"food",link:"https://www.timeout.com/time-out-market-new-york",tr:"🚶 6 min"},
+   {t:"22:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A/C o F"}
+  ]},
+ {id:7,label:"Jue 13",title:"Flatiron, Chelsea, High Line y salida",goal:"Último día lineal; recogida en el YOTEL a las 23:00.",
+  stops:[
+   {t:"08:15",n:"Desayuno: Leon's Bagels (Midtown)",lat:40.747062,lng:-73.988549,note:"1235 Broadway, camino a Flatiron.",cat:"food",isNew:true,link:gplace("ChIJnUrhxltZwokRNJ9NqN13Oqg")},
+   {t:"09:30",n:"Flatiron / Madison Square Park",lat:40.7411,lng:-73.9897,link:gmaps("Flatiron Building"),tr:"🚶 8 min"},
+   {t:"10:15",n:"Eataly",lat:40.7423,lng:-73.9903,link:gmaps("Eataly NYC Flatiron"),tr:"🚶 2 min"},
+   {t:"10:45",n:"Petco Union Square",lat:40.7359,lng:-73.9885,tr:"🚶 8 min"},
+   {t:"10:50",n:"TJ Maxx",lat:40.7398,lng:-73.9944,note:"Máx. 45 min.",tr:"🚶 8 min"},
+   {t:"11:40",n:"Crumbl Cookies Chelsea",lat:40.7449,lng:-73.9985,cat:"food",link:gmaps("Crumbl Cookies Chelsea NYC"),tr:"🚶 6 min"},
+   {t:"12:10",n:"Chelsea Market / Los Tacos No. 1",lat:40.7424,lng:-74.0061,note:"Comed pronto, la cola crece.",link:"https://www.lostacos1.com/locations/",tr:"🚶 8 min"},
+   {t:"13:30",n:"High Line hacia el norte",lat:40.7495,lng:-74.0075,link:gmaps("The High Line entrance 14th street"),tr:"🚶 sobre la High Line"},
+   {t:"15:15",n:"Little Island",lat:40.7420,lng:-74.0132,link:gmaps("Little Island NYC"),tr:"🚶 10 min"},
+   {t:"16:00",n:"Hudson Yards",lat:40.7538,lng:-74.0026,link:gmaps("Hudson Yards NYC"),tr:"🚶 12 min"},
+   {t:"18:00",n:"Maletas y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 línea 7"},
+   {t:"20:00",n:"Cena cerca del hotel",lat:40.7595,lng:-73.9960,cat:"food"},
+   {t:"23:00",n:"Recogida en el YOTEL",lat:40.7590,lng:-74.0021,isHotel:true}
+  ]}
+];
+
+const ZONES = [
+ {name:"Midtown / Times Square",lat:40.7580,lng:-73.9880,r:1000},
+ {name:"Quinta Avenida",lat:40.7595,lng:-73.9775,r:650},
+ {name:"Harlem",lat:40.8080,lng:-73.9465,r:1000},
+ {name:"Central Park (norte)",lat:40.7960,lng:-73.9520,r:850},
+ {name:"UWS (Museo)",lat:40.7810,lng:-73.9760,r:500},
+ {name:"Tribeca",lat:40.7195,lng:-74.0089,r:600},
+ {name:"SoHo",lat:40.7233,lng:-74.0030,r:600},
+ {name:"Greenwich Village",lat:40.7308,lng:-73.9990,r:600},
+ {name:"Distrito Financiero",lat:40.7080,lng:-74.0110,r:850},
+ {name:"DUMBO / Bklyn Heights",lat:40.7010,lng:-73.9930,r:750},
+ {name:"Chelsea / Flatiron",lat:40.7440,lng:-74.0000,r:900},
+ {name:"Hudson Yards",lat:40.7538,lng:-74.0026,r:450},
+ {name:"Roosevelt Island",lat:40.7614,lng:-73.9498,r:500}
+];
+
+/* ---------------------------------------------------------
+   PROYECCIÓN (Web Mercator, igual que usan las teselas reales)
+--------------------------------------------------------- */
+function project(lat,lng,zoom){
+  const n = Math.pow(2,zoom);
+  const x = (lng+180)/360*n*256;
+  const latRad = lat*Math.PI/180;
+  const y = (1 - Math.log(Math.tan(latRad)+1/Math.cos(latRad))/Math.PI)/2*n*256;
+  return {x:x,y:y};
+}
+function metersToPixels(meters, lat, zoom){
+  return meters * Math.pow(2,zoom) / (156543.03392 * Math.cos(lat*Math.PI/180));
+}
+function chooseZoom(bounds, targetW, targetH){
+  for(let z=18; z>=10; z--){
+    const p1 = project(bounds.maxLat, bounds.minLng, z);
+    const p2 = project(bounds.minLat, bounds.maxLng, z);
+    const w = Math.abs(p2.x-p1.x), h = Math.abs(p2.y-p1.y);
+    if(w<=targetW && h<=targetH) return z;
+  }
+  return 10;
+}
+function boundsOfPoints(pts){
+  let minLat=Infinity,maxLat=-Infinity,minLng=Infinity,maxLng=-Infinity;
+  pts.forEach(p=>{ minLat=Math.min(minLat,p.lat); maxLat=Math.max(maxLat,p.lat); minLng=Math.min(minLng,p.lng); maxLng=Math.max(maxLng,p.lng); });
+  return {minLat,maxLat,minLng,maxLng};
+}
+
+/* ---------------------------------------------------------
+   SVG helpers
+--------------------------------------------------------- */
+const svg = document.getElementById('mapsvg');
+function el(tag,attrs){
+  const e = document.createElementNS(SVG_NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+
+/* ---------------------------------------------------------
+   PAN / ZOOM manual (arrastrar y pellizcar) — no dependemos
+   del zoom nativo del navegador porque algunos visores lo bloquean
+--------------------------------------------------------- */
+let vb = {x:0,y:0,w:100,h:100};
+let responsiveEls = [];
+function applyVB(){ svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); scheduleTileUpdate(); updateAllResponsive(); }
+function zoomBy(factor){
+  const cx = vb.x+vb.w/2, cy = vb.y+vb.h/2;
+  vb.w *= factor; vb.h *= factor;
+  vb.x = cx - vb.w/2; vb.y = cy - vb.h/2;
+  applyVB();
+}
+window.zoomBy = zoomBy;
+
+/* Elementos "responsive": mantienen su tamaño visual constante en
+   pantalla sin importar el zoom del mapa (números, iconos, horas) */
+function addResponsive(container, x, y, buildFn, extraTransform){
+  const g = el('g',{});
+  buildFn(g);
+  container.appendChild(g);
+  const item = {g:g, x:x, y:y, extra: extraTransform || ''};
+  responsiveEls.push(item);
+  updateOneResponsive(item);
+  return g;
+}
+function updateOneResponsive(item){
+  const comp = vb.w / (refVbW || vb.w);
+  item.g.setAttribute('transform', `translate(${item.x},${item.y}) ${item.extra} scale(${comp})`);
+}
+function updateAllResponsive(){
+  for(let i=0;i<responsiveEls.length;i++) updateOneResponsive(responsiveEls[i]);
+}
+
+const pointers = new Map();
+let pinchStartDist = null, pinchStartVB = null;
+const DRAG_THRESHOLD = 6;
+function ptDist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+svg.addEventListener('pointerdown', function(e){
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:e.clientX, startY:e.clientY});
+  if(pointers.size===2){
+    const pts = [...pointers.values()];
+    pinchStartDist = ptDist(pts[0],pts[1]);
+    pinchStartVB = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
+  }
+});
+svg.addEventListener('pointermove', function(e){
+  if(!pointers.has(e.pointerId)) return;
+  const prev = pointers.get(e.pointerId);
+  const dx = e.clientX-prev.x, dy = e.clientY-prev.y;
+  pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:prev.startX, startY:prev.startY});
+  const rect = svg.getBoundingClientRect();
+  if(pointers.size===1){
+    const moved = Math.hypot(e.clientX-prev.startX, e.clientY-prev.startY);
+    if(moved > DRAG_THRESHOLD){
+      const scaleX = vb.w/rect.width, scaleY = vb.h/rect.height;
+      vb.x -= dx*scaleX; vb.y -= dy*scaleY;
+      applyVB();
+    }
+  } else if(pointers.size===2 && pinchStartDist){
+    const pts = [...pointers.values()];
+    const newDist = ptDist(pts[0],pts[1]) || 1;
+    const factor = pinchStartDist/newDist;
+    const cx = pinchStartVB.x+pinchStartVB.w/2, cy = pinchStartVB.y+pinchStartVB.h/2;
+    vb.w = pinchStartVB.w*factor; vb.h = pinchStartVB.h*factor;
+    vb.x = cx-vb.w/2; vb.y = cy-vb.h/2;
+    applyVB();
+  }
+});
+function releasePointer(e){
+  pointers.delete(e.pointerId);
+  if(pointers.size<2){ pinchStartDist=null; pinchStartVB=null; }
+}
+svg.addEventListener('pointerup', releasePointer);
+svg.addEventListener('pointercancel', releasePointer);
+svg.addEventListener('pointerleave', releasePointer);
+svg.addEventListener('wheel', function(e){
+  e.preventDefault();
+  zoomBy(e.deltaY>0 ? 1.12 : 0.89);
+}, {passive:false});
+
+function renderTilesAt(container, tileZoom, refZoom, vbNow){
+  while(container.firstChild) container.removeChild(container.firstChild);
+  const factor = Math.pow(2, refZoom - tileZoom);
+  const tileSizeInRef = 256 * factor;
+  const minTileX = Math.floor(vbNow.x / tileSizeInRef) - 1;
+  const maxTileX = Math.floor((vbNow.x+vbNow.w) / tileSizeInRef) + 1;
+  const minTileY = Math.floor(vbNow.y / tileSizeInRef) - 1;
+  const maxTileY = Math.floor((vbNow.y+vbNow.h) / tileSizeInRef) + 1;
+  const n = Math.pow(2, tileZoom);
+  let count=0;
+  for(let ty=minTileY; ty<=maxTileY; ty++){
+    for(let tx=minTileX; tx<=maxTileX; tx++){
+      if(tx<0||ty<0||tx>=n||ty>=n) continue;
+      if(count++ > 110) return;
+      const url = `https://tile.openstreetmap.org/${tileZoom}/${tx}/${ty}.png`;
+      const img = el('image',{ x: tx*tileSizeInRef, y: ty*tileSizeInRef, width:tileSizeInRef, height:tileSizeInRef, preserveAspectRatio:'none'});
+      img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', url);
+      img.setAttribute('href', url);
+      container.appendChild(img);
+    }
+  }
+}
+let refZoom = 13, refVbW = 100, tileLayerEl = null, tileZoomTimer = null;
+function updateTiles(){
+  if(!tileLayerEl) return;
+  const effectiveZoom = refZoom + Math.log2(refVbW / vb.w);
+  const tileZoom = Math.max(3, Math.min(19, Math.round(effectiveZoom)));
+  renderTilesAt(tileLayerEl, tileZoom, refZoom, vb);
+}
+function scheduleTileUpdate(){
+  if(tileZoomTimer) clearTimeout(tileZoomTimer);
+  tileZoomTimer = setTimeout(updateTiles, 180);
+}
+
+function popupHtml(stop,dayLabel){
+  let badges='';
+  if(stop.isNew) badges+='<span class="badge badge-new">Nuevo</span>';
+  if(stop.cat==='food') badges+='<span class="badge badge-food">Comida</span>';
+  let html=`${badges?'<div>'+badges+'</div>':''}<b>${stop.n}</b>`;
+  if(stop.t) html+=` <span style="color:#c96a3f;font-weight:700;">· ${stop.t}</span>`;
+  if(dayLabel) html+=`<div style="font-size:10.5px;color:#7a7466;margin-top:1px;">${dayLabel}</div>`;
+  if(stop.note) html+=`<div style="margin-top:5px;">${stop.note}</div>`;
+  let links = '';
+  if(stop.link) links += `<a href="${stop.link}" target="_blank" rel="noopener">📍 Ver en Google Maps</a>`;
+  if(stop.lat!=null && stop.lng!=null) links += `<a href="${gDirectionsUrl(stop.lat,stop.lng)}" target="_blank" rel="noopener">🧭 Cómo llegar a pie</a>`;
+  if(links) html += `<div class="links">${links}</div>`;
+  return html;
+}
+function showPopup(stop,dayLabel){
+  const box = document.getElementById('popcard');
+  box.innerHTML = '<span class="close" onclick="document.getElementById(\'popcard\').style.display=\'none\'">✕</span>' + popupHtml(stop,dayLabel);
+  box.style.display='block';
+}
+
+function addMarker(container, x, y, number, color, big, timeLabel, onClick){
+  const r = big ? 14 : 10;
+  const g = addResponsive(container, x, y, function(g){
+    g.style.cursor = 'pointer';
+    g.appendChild(el('circle',{r:r, fill:color, stroke:'#fff', 'stroke-width':2}));
+    const txt = el('text',{'text-anchor':'middle', dy:'0.35em', 'font-size': big?12:10.5, 'font-weight':700, fill:'#fff'});
+    txt.textContent = number;
+    g.appendChild(txt);
+    if(timeLabel){
+      const tt = el('text',{y:-(r+7), 'text-anchor':'middle', 'font-size':9.5, 'font-weight':700, fill:'#1c3a4a',
+        stroke:'#fffdf8', 'stroke-width':3, 'paint-order':'stroke'});
+      tt.textContent = timeLabel;
+      g.appendChild(tt);
+    }
+  });
+  g.addEventListener('click', onClick);
+  return g;
+}
+
+function addRoute(container, projPts, day, opts){
+  opts = opts || {};
+  const color = DAY_COLORS[day.id];
+  const pointsAttr = projPts.map(p=>`${p.x},${p.y}`).join(' ');
+  container.appendChild(el('polyline',{points:pointsAttr, fill:'none', stroke:color, 'stroke-width':opts.weight||3,
+    'stroke-opacity':opts.opacity||.8, 'stroke-dasharray':'2,7', 'stroke-linecap':'round', 'vector-effect':'non-scaling-stroke'}));
+
+  for(let i=0;i<projPts.length-1;i++){
+    const a=projPts[i], b=projPts[i+1];
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    const angle = Math.atan2(b.y-a.y, b.x-a.x) * 180/Math.PI;
+    addResponsive(container, mx, my, function(g){
+      g.appendChild(el('path',{d:'M -5,-4 L 5,0 L -5,4 Z', fill:color, opacity:.85}));
+    }, `rotate(${angle})`);
+    if(opts.transportIcons && day.stops[i+1].tr){
+      const trText = day.stops[i+1].tr;
+      const emoji = trText.split(' ')[0];
+      const iconG = addResponsive(container, mx, my, function(g){
+        g.style.cursor = 'pointer';
+        g.appendChild(el('circle',{cx:14, cy:-14, r:10, fill:'#fffdf8', stroke:'#e7ddc9', 'stroke-width':1}));
+        const iconTxt = el('text',{x:14, y:-14, 'text-anchor':'middle', dy:'0.35em', 'font-size':11});
+        iconTxt.textContent = emoji;
+        g.appendChild(iconTxt);
+      });
+      iconG.addEventListener('click', function(){ showPopup({n:'Transporte', t:null, note:trText}, `Día ${day.id} · ${day.label}`); });
+    }
+  }
+}
+
+/* ---------------------------------------------------------
+   RUTAS REALES A PIE (OSRM) — mejora progresiva: si hay
+   conexión, sustituye el tramo recto por la calle real; si no,
+   se queda la línea recta como respaldo. Se cachean en memoria
+   (Map, nunca localStorage/sessionStorage) para no repetir
+   peticiones al cambiar de pestaña o volver a la vista General.
+--------------------------------------------------------- */
+function isWalkingTr(tr){
+  if(!tr) return true;
+  return tr.trim().startsWith('🚶');
+}
+function findWalkingChains(stops){
+  const chains = [];
+  let current = [0];
+  for(let i=1;i<stops.length;i++){
+    if(isWalkingTr(stops[i].tr)){
+      current.push(i);
+    } else {
+      if(current.length>1) chains.push(current.slice());
+      current = [i];
+    }
+  }
+  if(current.length>1) chains.push(current.slice());
+  return chains;
+}
+function fetchWalkingGeometry(latlngs){
+  const coordStr = latlngs.map(function(p){ return p.lng+','+p.lat; }).join(';');
+  const url = 'https://router.project-osrm.org/route/v1/foot/'+coordStr+'?overview=full&geometries=geojson';
+  return fetch(url).then(function(res){
+    if(!res.ok) throw new Error('OSRM '+res.status);
+    return res.json();
+  }).then(function(data){
+    if(!data.routes || !data.routes[0]) throw new Error('sin ruta');
+    return data.routes[0].geometry.coordinates.map(function(c){ return {lat:c[1], lng:c[0]}; });
+  });
+}
+function chainKey(latlngs){
+  return latlngs.map(function(p){ return p.lat.toFixed(5)+','+p.lng.toFixed(5); }).join('|');
+}
+function updateRouteStatusUI(){
+  document.getElementById('routestatus').style.display = pendingRouteRequests>0 ? 'flex' : 'none';
+}
+function noteRouteFailure(){
+  pendingFailureCount++;
+  if(routeFailureToastTimer) clearTimeout(routeFailureToastTimer);
+  routeFailureToastTimer = setTimeout(function(){
+    if(pendingFailureCount>0){
+      showToast('⚠️ Algunas rutas a pie no se pudieron calcular (sin conexión). Se muestra la línea recta.');
+      pendingFailureCount = 0;
+    }
+  }, 900);
+}
+function drawRealLine(pathLatLngs, day, zoom, container){
+  const projPath = pathLatLngs.map(function(p){ return project(p.lat,p.lng,zoom); });
+  const pointsAttr = projPath.map(function(p){ return p.x+','+p.y; }).join(' ');
+  const realLine = el('polyline',{points:pointsAttr, fill:'none', stroke:DAY_COLORS[day.id], 'stroke-width':4,
+    'stroke-opacity':0.9, 'stroke-linecap':'round', 'stroke-linejoin':'round', 'vector-effect':'non-scaling-stroke'});
+  container.appendChild(realLine);
+}
+function enhanceWalkingRoutes(day, container, zoom){
+  const chains = findWalkingChains(day.stops);
+  chains.forEach(function(chainIdx){
+    const latlngs = chainIdx.map(function(i){ return {lat:day.stops[i].lat, lng:day.stops[i].lng}; });
+    const key = chainKey(latlngs);
+    if(routeCache.has(key)){
+      const cached = routeCache.get(key);
+      if(cached !== 'FAILED') drawRealLine(cached, day, zoom, container);
+      return;
+    }
+    pendingRouteRequests++; updateRouteStatusUI();
+    fetchWalkingGeometry(latlngs).then(function(pathLatLngs){
+      routeCache.set(key, pathLatLngs);
+      drawRealLine(pathLatLngs, day, zoom, container);
+    }).catch(function(){
+      routeCache.set(key, 'FAILED');
+      noteRouteFailure();
+    }).then(function(){
+      pendingRouteRequests--; updateRouteStatusUI();
+    });
+  });
+}
+
+/* ---------------------------------------------------------
+   TOAST discreto (avisos de red / ubicación)
+--------------------------------------------------------- */
+function showToast(msg, ms){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.style.display='none'; }, ms || 4000);
+}
+
+/* ---------------------------------------------------------
+   GEOLOCALIZACIÓN — centrar el mapa en la ubicación actual
+--------------------------------------------------------- */
+let userMarkerG = null;
+function drawUserMarker(){
+  if(!userLoc) return;
+  const p = project(userLoc.lat, userLoc.lng, refZoom);
+  userMarkerG = addResponsive(svg, p.x, p.y, function(g){
+    g.appendChild(el('circle',{r:13, fill:'rgba(74,114,160,.25)'}));
+    g.appendChild(el('circle',{r:6, fill:'#4a72a0', stroke:'#fff', 'stroke-width':2}));
+  });
+}
+function centerOnUser(){
+  if(!userLoc) return;
+  const p = project(userLoc.lat, userLoc.lng, refZoom);
+  vb.x = p.x - vb.w/2; vb.y = p.y - vb.h/2;
+  applyVB();
+  drawUserMarker();
+}
+function locateMe(){
+  const btn = document.getElementById('locbtn');
+  if(!navigator.geolocation){ showToast('⚠️ Tu navegador no admite geolocalización.'); return; }
+  btn.classList.add('loading');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    btn.classList.remove('loading');
+    userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude};
+    centerOnUser();
+  }, function(){
+    btn.classList.remove('loading');
+    showToast('⚠️ No se pudo obtener tu ubicación. Revisa los permisos.');
+  }, {enableHighAccuracy:true, timeout:10000, maximumAge:30000});
+}
+window.locateMe = locateMe;
+
+/* ---------------------------------------------------------
+   RENDER: día individual
+--------------------------------------------------------- */
+function renderDay(day){
+  clearSvg();
+  responsiveEls = [];
+  userMarkerG = null;
+  document.getElementById('legend').style.display='none';
+  document.getElementById('tlegend').style.display='block';
+  document.getElementById('popcard').style.display='none';
+
+  const bounds = boundsOfPoints(day.stops);
+  const wrap = document.getElementById('map-wrap');
+  const targetW = Math.max(wrap.clientWidth-80,300), targetH = Math.max(wrap.clientHeight-160,300);
+  const zoom = chooseZoom(bounds, targetW, targetH);
+  const projStops = day.stops.map(s=>Object.assign({}, s, project(s.lat,s.lng,zoom)));
+  const xs = projStops.map(p=>p.x), ys = projStops.map(p=>p.y);
+  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+  const padX = Math.max((maxX-minX)*0.18, 60), padY = Math.max((maxY-minY)*0.18, 60);
+  vb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+  applyVB();
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+
+  const bg = el('rect',{x:vb.x-5000, y:vb.y-5000, width:vb.w+10000, height:vb.h+10000, fill:'#eef0e6'});
+  svg.appendChild(bg);
+  tileLayerEl = el('g',{opacity:0.95});
+  svg.appendChild(tileLayerEl);
+  refZoom = zoom; refVbW = vb.w;
+  updateTiles();
+
+  const routeLayer = el('g',{});
+  svg.appendChild(routeLayer);
+  addRoute(routeLayer, projStops, day, {weight:4, opacity:.9, transportIcons:true});
+  enhanceWalkingRoutes(day, routeLayer, zoom);
+
+  const markerLayer = el('g',{});
+  svg.appendChild(markerLayer);
+  projStops.forEach((s,i)=>{
+    const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
+    addMarker(markerLayer, s.x, s.y, i+1, color, true, s.t, function(){ showPopup(s, null); });
+  });
+
+  document.getElementById('dc-title').textContent = `Día ${day.id} · ${day.label} — ${day.title}`;
+  document.getElementById('dc-goal').textContent = day.goal;
+  document.getElementById('daycard').style.display='block';
+  document.getElementById('reopen').style.display='none';
+
+  if(userLoc) drawUserMarker();
+}
+
+/* ---------------------------------------------------------
+   RENDER: general
+--------------------------------------------------------- */
+let dayGroups = {};
+function renderGeneral(){
+  clearSvg();
+  responsiveEls = [];
+  userMarkerG = null;
+  dayGroups = {};
+  document.getElementById('daycard').style.display='none';
+  document.getElementById('reopen').style.display='none';
+  document.getElementById('tlegend').style.display='none';
+  document.getElementById('popcard').style.display='none';
+
+  const allStops = [HOTEL].concat(DAYS.flatMap(d=>d.stops)).concat(ZONES);
+  const bounds = boundsOfPoints(allStops);
+  const wrap = document.getElementById('map-wrap');
+  const targetW = Math.max(wrap.clientWidth-40,300), targetH = Math.max(wrap.clientHeight-40,300);
+  const zoom = chooseZoom(bounds, targetW, targetH);
+
+  const projAll = allStops.map(s=>project(s.lat,s.lng,zoom));
+  const xs = projAll.map(p=>p.x), ys = projAll.map(p=>p.y);
+  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+  const padX = Math.max((maxX-minX)*0.08, 40), padY = Math.max((maxY-minY)*0.08, 40);
+  vb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+  applyVB();
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+
+  svg.appendChild(el('rect',{x:vb.x-5000,y:vb.y-5000,width:vb.w+10000,height:vb.h+10000, fill:'#eef0e6'}));
+  tileLayerEl = el('g',{opacity:0.9});
+  svg.appendChild(tileLayerEl);
+  refZoom = zoom; refVbW = vb.w;
+  updateTiles();
+
+  const zoneLayer = el('g',{});
+  svg.appendChild(zoneLayer);
+  ZONES.forEach(z=>{
+    const p = project(z.lat,z.lng,zoom);
+    const r = metersToPixels(z.r, z.lat, zoom);
+    zoneLayer.appendChild(el('circle',{cx:p.x, cy:p.y, r:r, fill:'#1c3a4a', 'fill-opacity':0.06, stroke:'#1c3a4a', 'stroke-width':1, 'stroke-dasharray':'4,5'}));
+    const lbl = el('text',{x:p.x, y:p.y, 'text-anchor':'middle', 'font-size':11, 'font-weight':700, fill:'#1c3a4a',
+      stroke:'#fffdf8', 'stroke-width':4, 'paint-order':'stroke'});
+    lbl.textContent = z.name;
+    zoneLayer.appendChild(lbl);
+  });
+
+  DAYS.forEach(day=>{
+    const g = el('g',{});
+    svg.appendChild(g);
+    const projStops = day.stops.map(s=>Object.assign({}, s, project(s.lat,s.lng,zoom)));
+    addRoute(g, projStops, day, {weight:2.2, opacity:.55});
+    enhanceWalkingRoutes(day, g, zoom);
+    projStops.forEach((s,i)=>{
+      const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
+      addMarker(g, s.x, s.y, i+1, color, false, null, function(){ showPopup(s, `Día ${day.id} · ${day.label}`); });
+    });
+    dayGroups[day.id] = g;
+  });
+
+  const hp = project(HOTEL.lat,HOTEL.lng,zoom);
+  const hg = addResponsive(svg, hp.x, hp.y, function(g){
+    g.style.cursor='pointer';
+    g.appendChild(el('circle',{r:15, fill:'#c96a3f', stroke:'#fff', 'stroke-width':2.5}));
+    const hicon = el('text',{'text-anchor':'middle', dy:'0.35em', 'font-size':13});
+    hicon.textContent='🏨'; g.appendChild(hicon);
+  });
+  hg.addEventListener('click', function(){ showPopup({n:HOTEL.name, t:null, lat:HOTEL.lat, lng:HOTEL.lng, link:gmaps(HOTEL.name)}, null); });
+
+  let html = `<div class="title">Días del viaje</div>`;
+  DAYS.forEach(d=>{
+    html += `<label class="item"><input type="checkbox" checked onchange="toggleDay(${d.id},this.checked)"><span class="swatch" style="background:${DAY_COLORS[d.id]}"></span>Día ${d.id} · ${d.label}</label>`;
+  });
+  document.getElementById('legend').innerHTML = html;
+  document.getElementById('legend').style.display='block';
+
+  if(userLoc) drawUserMarker();
+}
+
+function toggleDay(id, visible){
+  const g = dayGroups[id];
+  if(!g) return;
+  g.style.display = visible ? '' : 'none';
+}
+window.toggleDay = toggleDay;
+
+function reopenCard(){
+  document.getElementById('daycard').style.display='block';
+  document.getElementById('reopen').style.display='none';
+}
+window.reopenCard = reopenCard;
+
+/* ---------------------------------------------------------
+   TABS
+--------------------------------------------------------- */
+let tabHtml = `<button class="tab active" id="tab-general" onclick="selectTab('general')">🗺️ General</button>`;
+DAYS.forEach(d=>{ tabHtml += `<button class="tab" id="tab-${d.id}" onclick="selectTab(${d.id})">${d.label}</button>`; });
+document.getElementById('tabs').innerHTML = tabHtml;
+
+function selectTab(id){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='general') renderGeneral();
+  else renderDay(DAYS.find(d=>d.id===id));
+}
+window.selectTab = selectTab;
+
+renderGeneral();
+window.addEventListener('resize', function(){
+  const activeTab = document.querySelector('.tab.active');
+  if(!activeTab) return;
+  const id = activeTab.id.replace('tab-','');
+  selectTab(id==='general' ? 'general' : Number(id));
+});
+</script>
+</body>
+</html>
