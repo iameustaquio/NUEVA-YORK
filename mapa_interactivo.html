@@ -16,9 +16,16 @@
   #zoomctl button:first-child{ border-bottom:1px solid var(--line); }
 
   #locctl{ position:absolute; bottom:106px; right:10px; z-index:900; background:rgba(255,253,248,.96);
-    border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+    border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,.2); transition:background .15s; }
   #locctl button{ width:38px; height:38px; border:none; background:transparent; font-size:16px; color:var(--navy); cursor:pointer; border-radius:50%; }
   #locctl button.loading{ opacity:.4; }
+  #locctl.active{ background:var(--navy); }
+  #locctl.active button{ color:#fff; }
+
+  .marker-pop{ animation:markerPop .38s cubic-bezier(.34,1.56,.64,1) both; transform-origin:0 0; }
+  @keyframes markerPop{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .user-pulse{ animation:userPulse 1.8s ease-out infinite; }
+  @keyframes userPulse{ 0%{ r:6; opacity:.55; } 100%{ r:16; opacity:0; } }
 
   #tabs{
     position:absolute; top:10px; left:10px; right:10px; z-index:1000;
@@ -37,6 +44,8 @@
   #daycard b{font-family:Georgia,serif; font-size:14px; display:block; margin-bottom:2px;}
   #daycard .goal{opacity:.85; font-style:italic;}
   #daycard .close{position:absolute; top:4px; right:8px; cursor:pointer; opacity:.7; font-size:13px;}
+  #playbtn{ position:absolute; top:2px; right:26px; background:transparent; border:none; color:#fff; font-size:13px; cursor:pointer; padding:2px 4px; opacity:.9; }
+  #playbtn.active{ opacity:1; }
 
   #legend{
     position:absolute; top:58px; left:10px; z-index:900; background:rgba(255,253,248,.96);
@@ -92,7 +101,7 @@
 <body>
 <div id="map-wrap"><svg id="mapsvg"></svg></div>
 <div id="tabs"></div>
-<div id="daycard"><span class="close" onclick="document.getElementById('daycard').style.display='none'; document.getElementById('reopen').style.display='block';">✕</span><b id="dc-title"></b><span class="goal" id="dc-goal"></span></div>
+<div id="daycard"><span class="close" onclick="document.getElementById('daycard').style.display='none'; document.getElementById('reopen').style.display='block';">✕</span><button id="playbtn" onclick="togglePlay()" title="Reproducir el día">▶️</button><b id="dc-title"></b><span class="goal" id="dc-goal"></span></div>
 <div id="legend"></div>
 <button id="reopen" onclick="reopenCard()">ℹ️ info del día</button>
 <div id="tlegend"><span>🚶 a pie</span><span>🚇 metro</span><span>🚌 bus</span><span>🚕 taxi</span><span>🚲 bici</span><span>🚡 teleférico</span></div>
@@ -124,6 +133,7 @@ let pendingRouteRequests = 0;
 let pendingFailureCount = 0;
 let routeFailureToastTimer = null;
 let toastTimer = null;
+let hasRenderedOnce = false;
 
 function gDirectionsUrl(lat,lng){
   const dest = lat+','+lng;
@@ -281,6 +291,14 @@ function el(tag,attrs){
   return e;
 }
 function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+/* Rectángulo de fondo que cubre tanto el encuadre de partida como el de
+   llegada, para que no se vea el hueco en blanco mientras el viewBox
+   viaja animado de uno a otro. */
+function bgRectAttrs(a, b){
+  const minX = Math.min(a.x, b.x) - 5000, minY = Math.min(a.y, b.y) - 5000;
+  const maxX = Math.max(a.x+a.w, b.x+b.w) + 5000, maxY = Math.max(a.y+a.h, b.y+b.h) + 5000;
+  return {x:minX, y:minY, width:maxX-minX, height:maxY-minY, fill:'#eef0e6'};
+}
 
 /* ---------------------------------------------------------
    PAN / ZOOM manual (arrastrar y pellizcar) — no dependemos
@@ -289,11 +307,39 @@ function clearSvg(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
 let vb = {x:0,y:0,w:100,h:100};
 let responsiveEls = [];
 function applyVB(){ svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); scheduleTileUpdate(); updateAllResponsive(); }
+
+/* Animación del viewBox (transiciones suaves): usada al cambiar de
+   pestaña, al usar +/-, al seguir la ubicación y al reproducir un día.
+   Un id incremental permite cancelar una animación en curso sin más
+   estado que comparar "sigue siendo la más reciente". */
+let vbAnimId = 0;
+function stopVbAnim(){ vbAnimId++; }
+function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+function animateVBTo(targetVb, duration, onDone){
+  const myId = ++vbAnimId;
+  const from = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
+  const t0 = performance.now();
+  function step(now){
+    if(myId !== vbAnimId) return;
+    const t = Math.min(1, (now-t0)/duration);
+    const e = easeInOutCubic(t);
+    vb = {
+      x: from.x+(targetVb.x-from.x)*e,
+      y: from.y+(targetVb.y-from.y)*e,
+      w: from.w+(targetVb.w-from.w)*e,
+      h: from.h+(targetVb.h-from.h)*e
+    };
+    applyVB();
+    if(t<1) requestAnimationFrame(step);
+    else if(onDone) onDone();
+  }
+  requestAnimationFrame(step);
+}
 function zoomBy(factor){
+  stopVbAnim(); stopPlayback();
   const cx = vb.x+vb.w/2, cy = vb.y+vb.h/2;
-  vb.w *= factor; vb.h *= factor;
-  vb.x = cx - vb.w/2; vb.y = cy - vb.h/2;
-  applyVB();
+  const w = vb.w*factor, h = vb.h*factor;
+  animateVBTo({x:cx-w/2, y:cy-h/2, w:w, h:h}, 220);
 }
 window.zoomBy = zoomBy;
 
@@ -322,6 +368,7 @@ const DRAG_THRESHOLD = 6;
 function ptDist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
 
 svg.addEventListener('pointerdown', function(e){
+  stopVbAnim();
   pointers.set(e.pointerId, {x:e.clientX, y:e.clientY, startX:e.clientX, startY:e.clientY});
   if(pointers.size===2){
     const pts = [...pointers.values()];
@@ -338,11 +385,15 @@ svg.addEventListener('pointermove', function(e){
   if(pointers.size===1){
     const moved = Math.hypot(e.clientX-prev.startX, e.clientY-prev.startY);
     if(moved > DRAG_THRESHOLD){
+      stopPlayback();
+      if(followMode) setFollowMode(false);
       const scaleX = vb.w/rect.width, scaleY = vb.h/rect.height;
       vb.x -= dx*scaleX; vb.y -= dy*scaleY;
       applyVB();
     }
   } else if(pointers.size===2 && pinchStartDist){
+    stopPlayback();
+    if(followMode) setFollowMode(false);
     const pts = [...pointers.values()];
     const newDist = ptDist(pts[0],pts[1]) || 1;
     const factor = pinchStartDist/newDist;
@@ -418,20 +469,22 @@ function showPopup(stop,dayLabel){
   box.style.display='block';
 }
 
-function addMarker(container, x, y, number, color, big, timeLabel, onClick){
+function addMarker(container, x, y, number, color, big, timeLabel, onClick, delayIndex){
   const r = big ? 14 : 10;
   const g = addResponsive(container, x, y, function(g){
     g.style.cursor = 'pointer';
-    g.appendChild(el('circle',{r:r, fill:color, stroke:'#fff', 'stroke-width':2}));
+    const pop = el('g',{class:'marker-pop', style:`animation-delay:${Math.min(delayIndex||0,8)*45}ms`});
+    pop.appendChild(el('circle',{r:r, fill:color, stroke:'#fff', 'stroke-width':2}));
     const txt = el('text',{'text-anchor':'middle', dy:'0.35em', 'font-size': big?12:10.5, 'font-weight':700, fill:'#fff'});
     txt.textContent = number;
-    g.appendChild(txt);
+    pop.appendChild(txt);
     if(timeLabel){
       const tt = el('text',{y:-(r+7), 'text-anchor':'middle', 'font-size':9.5, 'font-weight':700, fill:'#1c3a4a',
         stroke:'#fffdf8', 'stroke-width':3, 'paint-order':'stroke'});
       tt.textContent = timeLabel;
-      g.appendChild(tt);
+      pop.appendChild(tt);
     }
+    g.appendChild(pop);
   });
   g.addEventListener('click', onClick);
   return g;
@@ -524,6 +577,17 @@ function drawRealLine(pathLatLngs, day, zoom, container){
   const realLine = el('polyline',{points:pointsAttr, fill:'none', stroke:DAY_COLORS[day.id], 'stroke-width':4,
     'stroke-opacity':0.9, 'stroke-linecap':'round', 'stroke-linejoin':'round', 'vector-effect':'non-scaling-stroke'});
   container.appendChild(realLine);
+  /* La ruta real llega con retraso (hay que esperar a OSRM), así que se
+     "traza" progresivamente en vez de aparecer de golpe: se ve como si
+     se acabara de calcular delante de tus ojos. */
+  try{
+    const len = realLine.getTotalLength();
+    realLine.style.strokeDasharray = len;
+    realLine.style.strokeDashoffset = len;
+    realLine.getBoundingClientRect();
+    realLine.style.transition = 'stroke-dashoffset 900ms ease-out';
+    requestAnimationFrame(function(){ realLine.style.strokeDashoffset = '0'; });
+  }catch(err){ /* getTotalLength no disponible: la línea ya se ve completa igualmente */ }
 }
 function enhanceWalkingRoutes(day, container, zoom){
   const chains = findWalkingChains(day.stops);
@@ -560,32 +624,58 @@ function showToast(msg, ms){
 }
 
 /* ---------------------------------------------------------
-   GEOLOCALIZACIÓN — centrar el mapa en la ubicación actual
+   GEOLOCALIZACIÓN — centrar el mapa en la ubicación actual y,
+   si se activa, seguir en vivo mientras caminas (watchPosition).
+   Cualquier arrastre manual del mapa desactiva el seguimiento,
+   para no pelear con lo que el usuario intenta ver.
 --------------------------------------------------------- */
 let userMarkerG = null;
+let followMode = false;
+let watchId = null;
+function removeUserMarker(){
+  if(!userMarkerG) return;
+  if(userMarkerG.parentNode) userMarkerG.parentNode.removeChild(userMarkerG);
+  const idx = responsiveEls.findIndex(function(item){ return item.g===userMarkerG; });
+  if(idx>=0) responsiveEls.splice(idx,1);
+  userMarkerG = null;
+}
 function drawUserMarker(){
   if(!userLoc) return;
+  removeUserMarker();
   const p = project(userLoc.lat, userLoc.lng, refZoom);
   userMarkerG = addResponsive(svg, p.x, p.y, function(g){
-    g.appendChild(el('circle',{r:13, fill:'rgba(74,114,160,.25)'}));
+    g.appendChild(el('circle',{class:'user-pulse', r:6, fill:'rgba(74,114,160,.35)'}));
     g.appendChild(el('circle',{r:6, fill:'#4a72a0', stroke:'#fff', 'stroke-width':2}));
   });
 }
-function centerOnUser(){
+function centerOnUser(animate){
   if(!userLoc) return;
   const p = project(userLoc.lat, userLoc.lng, refZoom);
-  vb.x = p.x - vb.w/2; vb.y = p.y - vb.h/2;
-  applyVB();
+  const target = {x:p.x-vb.w/2, y:p.y-vb.h/2, w:vb.w, h:vb.h};
+  if(animate){ animateVBTo(target, 500); } else { vb = target; applyVB(); }
   drawUserMarker();
 }
+function setFollowMode(on){
+  followMode = on;
+  document.getElementById('locctl').classList.toggle('active', on);
+  if(!on && watchId!=null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+}
 function locateMe(){
+  if(followMode){ setFollowMode(false); return; }
   const btn = document.getElementById('locbtn');
   if(!navigator.geolocation){ showToast('⚠️ Tu navegador no admite geolocalización.'); return; }
   btn.classList.add('loading');
   navigator.geolocation.getCurrentPosition(function(pos){
     btn.classList.remove('loading');
     userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude};
-    centerOnUser();
+    centerOnUser(true);
+    setFollowMode(true);
+    watchId = navigator.geolocation.watchPosition(function(p2){
+      userLoc = {lat:p2.coords.latitude, lng:p2.coords.longitude};
+      if(followMode) centerOnUser(true); else drawUserMarker();
+    }, function(){
+      showToast('⚠️ Se perdió la señal de ubicación.');
+    }, {enableHighAccuracy:true, maximumAge:5000, timeout:15000});
   }, function(){
     btn.classList.remove('loading');
     showToast('⚠️ No se pudo obtener tu ubicación. Revisa los permisos.');
@@ -597,6 +687,9 @@ window.locateMe = locateMe;
    RENDER: día individual
 --------------------------------------------------------- */
 function renderDay(day){
+  stopPlayback();
+  const prevVb = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
+  const prevZoom = refZoom;
   clearSvg();
   responsiveEls = [];
   userMarkerG = null;
@@ -612,15 +705,27 @@ function renderDay(day){
   const xs = projStops.map(p=>p.x), ys = projStops.map(p=>p.y);
   const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
   const padX = Math.max((maxX-minX)*0.18, 60), padY = Math.max((maxY-minY)*0.18, 60);
-  vb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+  const targetVb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+
+  /* Transición suave: en vez de saltar directamente al encuadre del
+     día, convertimos el encuadre anterior al espacio de proyección del
+     nuevo zoom (misma proyección Web Mercator, solo cambia la potencia
+     de 2) y animamos desde ahí hasta el destino real. */
+  let startVb;
+  if(hasRenderedOnce){
+    const scale = Math.pow(2, zoom - prevZoom);
+    startVb = {x:prevVb.x*scale, y:prevVb.y*scale, w:prevVb.w*scale, h:prevVb.h*scale};
+  } else {
+    startVb = targetVb;
+  }
+  vb = startVb;
   applyVB();
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 
-  const bg = el('rect',{x:vb.x-5000, y:vb.y-5000, width:vb.w+10000, height:vb.h+10000, fill:'#eef0e6'});
-  svg.appendChild(bg);
+  svg.appendChild(el('rect', bgRectAttrs(startVb, targetVb)));
   tileLayerEl = el('g',{opacity:0.95});
   svg.appendChild(tileLayerEl);
-  refZoom = zoom; refVbW = vb.w;
+  refZoom = zoom; refVbW = targetVb.w;
   updateTiles();
 
   const routeLayer = el('g',{});
@@ -632,7 +737,7 @@ function renderDay(day){
   svg.appendChild(markerLayer);
   projStops.forEach((s,i)=>{
     const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
-    addMarker(markerLayer, s.x, s.y, i+1, color, true, s.t, function(){ showPopup(s, null); });
+    addMarker(markerLayer, s.x, s.y, i+1, color, true, s.t, function(){ showPopup(s, null); }, i);
   });
 
   document.getElementById('dc-title').textContent = `Día ${day.id} · ${day.label} — ${day.title}`;
@@ -641,6 +746,8 @@ function renderDay(day){
   document.getElementById('reopen').style.display='none';
 
   if(userLoc) drawUserMarker();
+  if(hasRenderedOnce) animateVBTo(targetVb, 550);
+  hasRenderedOnce = true;
 }
 
 /* ---------------------------------------------------------
@@ -648,6 +755,9 @@ function renderDay(day){
 --------------------------------------------------------- */
 let dayGroups = {};
 function renderGeneral(){
+  stopPlayback();
+  const prevVb = {x:vb.x,y:vb.y,w:vb.w,h:vb.h};
+  const prevZoom = refZoom;
   clearSvg();
   responsiveEls = [];
   userMarkerG = null;
@@ -667,14 +777,23 @@ function renderGeneral(){
   const xs = projAll.map(p=>p.x), ys = projAll.map(p=>p.y);
   const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
   const padX = Math.max((maxX-minX)*0.08, 40), padY = Math.max((maxY-minY)*0.08, 40);
-  vb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+  const targetVb = {x:minX-padX, y:minY-padY, w:(maxX-minX)+2*padX, h:(maxY-minY)+2*padY};
+
+  let startVb;
+  if(hasRenderedOnce){
+    const scale = Math.pow(2, zoom - prevZoom);
+    startVb = {x:prevVb.x*scale, y:prevVb.y*scale, w:prevVb.w*scale, h:prevVb.h*scale};
+  } else {
+    startVb = targetVb;
+  }
+  vb = startVb;
   applyVB();
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 
-  svg.appendChild(el('rect',{x:vb.x-5000,y:vb.y-5000,width:vb.w+10000,height:vb.h+10000, fill:'#eef0e6'}));
+  svg.appendChild(el('rect', bgRectAttrs(startVb, targetVb)));
   tileLayerEl = el('g',{opacity:0.9});
   svg.appendChild(tileLayerEl);
-  refZoom = zoom; refVbW = vb.w;
+  refZoom = zoom; refVbW = targetVb.w;
   updateTiles();
 
   const zoneLayer = el('g',{});
@@ -697,7 +816,7 @@ function renderGeneral(){
     enhanceWalkingRoutes(day, g, zoom);
     projStops.forEach((s,i)=>{
       const color = s.isHotel ? '#c96a3f' : DAY_COLORS[day.id];
-      addMarker(g, s.x, s.y, i+1, color, false, null, function(){ showPopup(s, `Día ${day.id} · ${day.label}`); });
+      addMarker(g, s.x, s.y, i+1, color, false, null, function(){ showPopup(s, `Día ${day.id} · ${day.label}`); }, i);
     });
     dayGroups[day.id] = g;
   });
@@ -719,6 +838,8 @@ function renderGeneral(){
   document.getElementById('legend').style.display='block';
 
   if(userLoc) drawUserMarker();
+  if(hasRenderedOnce) animateVBTo(targetVb, 550);
+  hasRenderedOnce = true;
 }
 
 function toggleDay(id, visible){
@@ -733,6 +854,42 @@ function reopenCard(){
   document.getElementById('reopen').style.display='none';
 }
 window.reopenCard = reopenCard;
+
+/* ---------------------------------------------------------
+   MODO "REPRODUCIR DÍA" — recorre las paradas en orden,
+   centrando el mapa en cada una y abriendo su tarjeta, útil
+   para repasar el plan del día antes de salir.
+--------------------------------------------------------- */
+let playState = null;
+function stopPlayback(){
+  if(playState && playState.timer) clearTimeout(playState.timer);
+  playState = null;
+  const btn = document.getElementById('playbtn');
+  if(btn){ btn.textContent='▶️'; btn.classList.remove('active'); }
+}
+function playStep(day, idx){
+  if(!playState || playState.dayId !== day.id) return;
+  if(idx >= day.stops.length){ stopPlayback(); return; }
+  playState.index = idx;
+  const stop = day.stops[idx];
+  const p = project(stop.lat, stop.lng, refZoom);
+  animateVBTo({x:p.x-vb.w/2, y:p.y-vb.h/2, w:vb.w, h:vb.h}, 700);
+  showPopup(stop, null);
+  playState.timer = setTimeout(function(){ playStep(day, idx+1); }, 2600);
+}
+function togglePlay(){
+  const activeTab = document.querySelector('.tab.active');
+  if(!activeTab || activeTab.id==='tab-general') return;
+  const dayId = Number(activeTab.id.replace('tab-',''));
+  if(playState && playState.dayId===dayId){ stopPlayback(); return; }
+  stopPlayback();
+  if(followMode) setFollowMode(false);
+  playState = {dayId:dayId, index:0, timer:null};
+  const btn = document.getElementById('playbtn');
+  if(btn){ btn.textContent='⏸️'; btn.classList.add('active'); }
+  playStep(DAYS.find(function(d){ return d.id===dayId; }), 0);
+}
+window.togglePlay = togglePlay;
 
 /* ---------------------------------------------------------
    TABS
@@ -750,11 +907,29 @@ function selectTab(id){
 window.selectTab = selectTab;
 
 renderGeneral();
+
+/* Los navegadores embebidos (p.ej. Documents by Readdle) disparan 'resize'
+   solo porque su barra de herramientas se oculta/aparece al tocar la
+   pantalla. Un re-render completo en cada uno de esos casos cerraba de
+   golpe cualquier tarjeta que se acabara de abrir. Por eso se ignoran los
+   cambios de tamaño pequeños (ruido de la interfaz) y solo se reconstruye
+   el mapa ante un cambio real (girar el dispositivo). */
+let lastWrapW = document.getElementById('map-wrap').clientWidth;
+let lastWrapH = document.getElementById('map-wrap').clientHeight;
+let resizeTimer = null;
 window.addEventListener('resize', function(){
-  const activeTab = document.querySelector('.tab.active');
-  if(!activeTab) return;
-  const id = activeTab.id.replace('tab-','');
-  selectTab(id==='general' ? 'general' : Number(id));
+  if(resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function(){
+    const wrap = document.getElementById('map-wrap');
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    const changed = Math.abs(w-lastWrapW) > 40 || Math.abs(h-lastWrapH) > 120;
+    lastWrapW = w; lastWrapH = h;
+    if(!changed) return;
+    const activeTab = document.querySelector('.tab.active');
+    if(!activeTab) return;
+    const id = activeTab.id.replace('tab-','');
+    selectTab(id==='general' ? 'general' : Number(id));
+  }, 350);
 });
 </script>
 </body>
