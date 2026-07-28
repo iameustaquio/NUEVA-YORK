@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 1 · Vie 7 — Llegada y primera noche</name>
+  <Style id="day1pin">
+    <IconStyle>
+      <color>ff3f6ac9</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/1.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>17:00 · YOTEL — llegada</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:10 · Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 15–20 min<br/>Primera vuelta, sin entrar en todas las tiendas todavía.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Times%20Square%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9855,40.758,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:15 · Cena: Lovely's Old Fashioned</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 9 min<br/>Hamburguesas y aros de cebolla, abierto hasta tarde.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJd4_SnFJZwokRBeuZ-YwGaUw">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9909505,40.7603697,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:40 · Bryant Park (exterior biblioteca)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>Visita interior el sábado.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bryant%20Park%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9832,40.7536,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>22:30 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚕 taxi / 🚌 M42]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>

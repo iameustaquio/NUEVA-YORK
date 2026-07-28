@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 6 · Mié 12 — Downtown, Brooklyn y rooftop</name>
+  <Style id="day6pin">
+    <IconStyle>
+      <color>ffae4f8a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/6.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>08:00 · Desayuno y salida</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 A/C/E]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:00 · Staten Island Ferry</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: ⛴️ ferry<br/>Ida y vuelta: Estatua de la Libertad y skyline.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Staten%20Island%20Ferry%20Terminal%20Manhattan">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0141,40.7011,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:20 · Distrito Financiero</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>Battery Park → Charging Bull → Wall Street.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Charging%20Bull%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0134,40.7056,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:30 · Oculus</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Oculus%20Westfield%20World%20Trade%20Center">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0099,40.7115,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:30 · Museo del 11-S</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/>2–2,5 horas.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=9%2F11%20Memorial%20Museum">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0134,40.7115,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:45 · Memorial del 11-S</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0129,40.7117,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:00 · Cruzar el puente de Brooklyn</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 15 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Brooklyn%20Bridge">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9969,40.7061,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:50 · Washington Street (DUMBO)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Foto clásica con el Manhattan Bridge.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Washington%20Street%20DUMBO%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9894,40.7033,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:20 · Jane's Carousel / Brooklyn Bridge Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Jane's%20Carousel%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7023,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:10 · Squibb Park Bridge / Brooklyn Heights</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Extra recortable si vais cansados.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Squibb%20Park%20Bridge%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9945,40.6995,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:00 · Time Out Market DUMBO (rooftop)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/>55 Water St. Cena + terraza.<br/><a href="https://www.timeout.com/time-out-market-new-york">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7024,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>22:00 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 A/C o F]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>

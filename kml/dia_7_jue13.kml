@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 7 · Jue 13 — Flatiron, Chelsea, High Line y salida</name>
+  <Style id="day7pin">
+    <IconStyle>
+      <color>ff3fa1c9</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/7.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>08:15 · Desayuno: Leon's Bagels (Midtown)</name>
+      <description><![CDATA[1235 Broadway, camino a Flatiron.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJnUrhxltZwokRNJ9NqN13Oqg">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.988549,40.747062,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:30 · Flatiron / Madison Square Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Flatiron%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9897,40.7411,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:15 · Eataly</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Eataly%20NYC%20Flatiron">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7423,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:45 · Petco Union Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9885,40.7359,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:50 · TJ Maxx</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Máx. 45 min.]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9944,40.7398,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Crumbl Cookies Chelsea</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Crumbl%20Cookies%20Chelsea%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9985,40.7449,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>12:10 · Chelsea Market / Los Tacos No. 1</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Comed pronto, la cola crece.<br/><a href="https://www.lostacos1.com/locations/">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0061,40.7424,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:30 · High Line hacia el norte</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 sobre la High Line<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=The%20High%20Line%20entrance%2014th%20street">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0075,40.7495,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:15 · Little Island</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Little%20Island%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0132,40.742,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>16:00 · Hudson Yards</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Hudson%20Yards%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0026,40.7538,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · Maletas y descanso</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea 7]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:00 · Cena cerca del hotel</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.996,40.7595,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>23:00 · Recogida en el YOTEL</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>

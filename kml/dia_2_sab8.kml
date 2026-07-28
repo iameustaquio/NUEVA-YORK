@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 2 · Sáb 8 — Midtown, compras y teleférico</name>
+  <Style id="day2pin">
+    <IconStyle>
+      <color>ff4a3a1c</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/2.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>08:00 · Desayuno: Liberty Bagels Midtown</name>
+      <description><![CDATA[Bagel clásico con cream cheese o huevo y queso.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Liberty%20Bagels%20Midtown%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.991,40.7488,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:00 · Bryant Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bryant%20Park%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9832,40.7536,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:30 · Biblioteca Schwarzman</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/>Leones, vestíbulo y salas públicas.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=New%20York%20Public%20Library%20Stephen%20A%20Schwarzman%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9822,40.7532,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:20 · Rooftop SNFL</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/>Gratuito, sábados 10:00–17:00.<br/><a href="https://www.nypl.org/locations/snfl/event-center">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9819,40.753,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:00 · Grand Central Terminal</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Grand%20Central%20Terminal">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9772,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Chrysler Building (exterior)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Chrysler%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9755,40.7516,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:00 · Quinta Avenida y tiendas</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/>Victoria's Secret, San Patricio, LEGO, FAO Schwarz, Apple.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Fifth%20Avenue%20New%20York%20shopping">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9776,40.7605,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>~15:00 · Café: Ralph's Coffee</name>
+      <description><![CDATA[Justo en el bloque de compras, sin desvío.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJMaNxh5tZwokRXA1h90zrKZk">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9772973,40.7589962,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · Hotel y descanso</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro / 🚕]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:45 · Cena Midtown East</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.97,40.755,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:05 · Tramway Plaza</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 evitar hora punta]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9553,40.757,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:15 · Teleférico Roosevelt Island</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚡 teleférico<br/>Manhattan iluminado + paseo por la orilla.<br/><a href="https://www.rioc.ny.gov/community/transportation/tram">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9498,40.7614,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>23:00 · Regreso al YOTEL</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro F]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>

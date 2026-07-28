@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 5 · Mar 11 — Compras populares y SUMMIT</name>
+  <Style id="day5pin">
+    <IconStyle>
+      <color>ffa0724a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/5.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>09:00 · Desayuno tranquilo</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:15 · Target Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Target%20Times%20Square%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9906,40.7573,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:05 · Disney Store Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Disney%20Store%20Times%20Square">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9847,40.7592,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>12:30 · Comida: Blue Dog Cookhouse &amp; Bar</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>308 W 50th St, dentro de la zona de Times Square.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJC6xz-lZYwokRd5Gv26A3RMA">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.986967,40.762557,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:45 · Hotel y descanso</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>16:30 · Hacia Grand Central</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea 7]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9772,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · SUMMIT One Vanderbilt</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/>Entrad con luz, quedaos hasta el anochecer.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=SUMMIT%20One%20Vanderbilt">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9787,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:45 · Cena en Midtown</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.979,40.7555,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>

@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Nueva York · Itinerario 7-13 agosto 2026</name>
+  <Style id="day1pin">
+    <IconStyle>
+      <color>ff3f6ac9</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/1.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day2pin">
+    <IconStyle>
+      <color>ff4a3a1c</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/2.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day3pin">
+    <IconStyle>
+      <color>ff5e8f5a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/3.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day4pin">
+    <IconStyle>
+      <color>ff2a50b5</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/4.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day5pin">
+    <IconStyle>
+      <color>ffa0724a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/5.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day6pin">
+    <IconStyle>
+      <color>ffae4f8a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/6.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Style id="day7pin">
+    <IconStyle>
+      <color>ff3fa1c9</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/7.png</href></Icon>
+    </IconStyle>
+  </Style>
+  <Folder>
+    <name>Día 1 · Vie 7 — Llegada y primera noche</name>
+    <Placemark>
+      <name>17:00 · YOTEL — llegada</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:10 · Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 15–20 min<br/>Primera vuelta, sin entrar en todas las tiendas todavía.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Times%20Square%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9855,40.758,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:15 · Cena: Lovely's Old Fashioned</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 9 min<br/>Hamburguesas y aros de cebolla, abierto hasta tarde.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJd4_SnFJZwokRBeuZ-YwGaUw">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9909505,40.7603697,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:40 · Bryant Park (exterior biblioteca)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>Visita interior el sábado.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bryant%20Park%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-73.9832,40.7536,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>22:30 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚕 taxi / 🚌 M42]]></description>
+      <styleUrl>#day1pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 2 · Sáb 8 — Midtown, compras y teleférico</name>
+    <Placemark>
+      <name>08:00 · Desayuno: Liberty Bagels Midtown</name>
+      <description><![CDATA[Bagel clásico con cream cheese o huevo y queso.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Liberty%20Bagels%20Midtown%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.991,40.7488,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:00 · Bryant Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bryant%20Park%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9832,40.7536,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:30 · Biblioteca Schwarzman</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/>Leones, vestíbulo y salas públicas.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=New%20York%20Public%20Library%20Stephen%20A%20Schwarzman%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9822,40.7532,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:20 · Rooftop SNFL</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/>Gratuito, sábados 10:00–17:00.<br/><a href="https://www.nypl.org/locations/snfl/event-center">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9819,40.753,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:00 · Grand Central Terminal</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Grand%20Central%20Terminal">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9772,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Chrysler Building (exterior)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Chrysler%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9755,40.7516,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:00 · Quinta Avenida y tiendas</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/>Victoria's Secret, San Patricio, LEGO, FAO Schwarz, Apple.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Fifth%20Avenue%20New%20York%20shopping">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9776,40.7605,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>~15:00 · Café: Ralph's Coffee</name>
+      <description><![CDATA[Justo en el bloque de compras, sin desvío.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJMaNxh5tZwokRXA1h90zrKZk">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9772973,40.7589962,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · Hotel y descanso</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro / 🚕]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:45 · Cena Midtown East</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.97,40.755,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:05 · Tramway Plaza</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 evitar hora punta]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9553,40.757,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>21:15 · Teleférico Roosevelt Island</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚡 teleférico<br/>Manhattan iluminado + paseo por la orilla.<br/><a href="https://www.rioc.ny.gov/community/transportation/tram">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-73.9498,40.7614,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>23:00 · Regreso al YOTEL</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro F]]></description>
+      <styleUrl>#day2pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 3 · Dom 9 — Harlem y Central Park (norte)</name>
+    <Placemark>
+      <name>08:00 · Desayuno cerca del hotel</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>08:45 · Metro hacia Harlem</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea A/C]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.95,40.79,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:00 · Servicio gospel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/>Llegad 30–40 min antes; vestimenta cuidada, móvil guardado.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Harlem%20gospel%20church%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9455,40.809,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Paseo por Harlem</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9478,40.8062,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:10 · Entrada norte Central Park (Harlem Meer)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Charles%20A%20Dana%20Discovery%20Center%20Central%20Park">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9494,40.7969,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:10 · Conservatory Garden</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9525,40.7947,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>14:15 · North Woods / The Loch</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9563,40.7962,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:15 · Circuito en bicicleta</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚲 Citi Bike]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.965,40.785,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:30 · Bethesda Terrace y Bow Bridge</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bethesda%20Terrace%20Central%20Park">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9714,40.7735,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:00 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 4 · Lun 10 — Historia Natural, Tribeca, SoHo y Greenwich</name>
+    <Placemark>
+      <name>~08:00 · Desayuno: Levain Bakery (UWS)</name>
+      <description><![CDATA[Abre a las 8:00, de camino al museo — sin desvío.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJ6SmehIlYwokRaO14xlmbWZU">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-73.980298,40.779959,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:00 · Museo de Historia Natural</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=American%20Museum%20of%20Natural%20History">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-73.974,40.7813,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>12:10 · Metro hacia Tribeca</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea C]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.006,40.72,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:00 · Bubby's Tribeca + fotomatón</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/>120 Hudson St. Revelado analógico, tarda unos minutos.<br/><a href="https://www.bubbys.com/">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.0093,40.7186,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:45 · Café: Rigor Hill Market</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/>227 W Broadway — literalmente de camino a SoHo.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJm0F0fiFZwokRfuBjDeS7w7U">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.005995,40.719225,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>14:15 · SoHo y compras</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=SoHo%20New%20York%20shopping">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.003,40.7233,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:15 · A Shop of Things</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 15 min<br/>30 Orchard St, regalos y objetos originales.<br/><a href="https://ashopofthings.com/pages/asot-irl">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-73.9908,40.7183,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:45 · Washington Square Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Washington%20Square%20Park">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-73.9973,40.7308,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:30 · Cóctel: The Up &amp; Up</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/>~16–18$ el cóctel, sin entrada, ambiente cuidado.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJN0f2iJFZwokRt53h0ISm3eE">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.000488,40.7297,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:15 · Cena: Joe's Pizza</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/>7 Carmine St, porciones clásicas para compartir.<br/><a href="https://www.joespizzanyc.com/locations2">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.0021,40.7306,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:15 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 A/C/E]]></description>
+      <styleUrl>#day4pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 5 · Mar 11 — Compras populares y SUMMIT</name>
+    <Placemark>
+      <name>09:00 · Desayuno tranquilo</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:15 · Target Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Target%20Times%20Square%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9906,40.7573,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:05 · Disney Store Times Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Disney%20Store%20Times%20Square">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9847,40.7592,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>12:30 · Comida: Blue Dog Cookhouse &amp; Bar</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>308 W 50th St, dentro de la zona de Times Square.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJC6xz-lZYwokRd5Gv26A3RMA">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.986967,40.762557,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:45 · Hotel y descanso</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>16:30 · Hacia Grand Central</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea 7]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9772,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · SUMMIT One Vanderbilt</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/>Entrad con luz, quedaos hasta el anochecer.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=SUMMIT%20One%20Vanderbilt">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.9787,40.7527,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:45 · Cena en Midtown</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶]]></description>
+      <styleUrl>#day5pin</styleUrl>
+      <Point><coordinates>-73.979,40.7555,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 6 · Mié 12 — Downtown, Brooklyn y rooftop</name>
+    <Placemark>
+      <name>08:00 · Desayuno y salida</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 A/C/E]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:00 · Staten Island Ferry</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: ⛴️ ferry<br/>Ida y vuelta: Estatua de la Libertad y skyline.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Staten%20Island%20Ferry%20Terminal%20Manhattan">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0141,40.7011,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:20 · Distrito Financiero</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/>Battery Park → Charging Bull → Wall Street.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Charging%20Bull%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0134,40.7056,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:30 · Oculus</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Oculus%20Westfield%20World%20Trade%20Center">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0099,40.7115,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:30 · Museo del 11-S</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 3 min<br/>2–2,5 horas.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=9%2F11%20Memorial%20Museum">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0134,40.7115,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:45 · Memorial del 11-S</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0129,40.7117,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:00 · Cruzar el puente de Brooklyn</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 15 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Brooklyn%20Bridge">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9969,40.7061,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:50 · Washington Street (DUMBO)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Foto clásica con el Manhattan Bridge.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Washington%20Street%20DUMBO%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9894,40.7033,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:20 · Jane's Carousel / Brooklyn Bridge Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Jane's%20Carousel%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7023,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:10 · Squibb Park Bridge / Brooklyn Heights</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Extra recortable si vais cansados.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Squibb%20Park%20Bridge%20Brooklyn">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9945,40.6995,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:00 · Time Out Market DUMBO (rooftop)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/>55 Water St. Cena + terraza.<br/><a href="https://www.timeout.com/time-out-market-new-york">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7024,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>22:00 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 A/C o F]]></description>
+      <styleUrl>#day6pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+  <Folder>
+    <name>Día 7 · Jue 13 — Flatiron, Chelsea, High Line y salida</name>
+    <Placemark>
+      <name>08:15 · Desayuno: Leon's Bagels (Midtown)</name>
+      <description><![CDATA[1235 Broadway, camino a Flatiron.<br/><a href="https://www.google.com/maps/place/?q=place_id:ChIJnUrhxltZwokRNJ9NqN13Oqg">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.988549,40.747062,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>09:30 · Flatiron / Madison Square Park</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Flatiron%20Building">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9897,40.7411,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:15 · Eataly</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 2 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Eataly%20NYC%20Flatiron">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9903,40.7423,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:45 · Petco Union Square</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9885,40.7359,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:50 · TJ Maxx</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Máx. 45 min.]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9944,40.7398,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Crumbl Cookies Chelsea</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 6 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Crumbl%20Cookies%20Chelsea%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.9985,40.7449,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>12:10 · Chelsea Market / Los Tacos No. 1</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min<br/>Comed pronto, la cola crece.<br/><a href="https://www.lostacos1.com/locations/">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0061,40.7424,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:30 · High Line hacia el norte</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 sobre la High Line<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=The%20High%20Line%20entrance%2014th%20street">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0075,40.7495,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:15 · Little Island</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Little%20Island%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0132,40.742,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>16:00 · Hudson Yards</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Hudson%20Yards%20NYC">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0026,40.7538,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>18:00 · Maletas y descanso</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea 7]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>20:00 · Cena cerca del hotel</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-73.996,40.7595,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>23:00 · Recogida en el YOTEL</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day7pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+  </Folder>
+</Document>
+</kml>

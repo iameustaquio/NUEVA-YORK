@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Día 3 · Dom 9 — Harlem y Central Park (norte)</name>
+  <Style id="day3pin">
+    <IconStyle>
+      <color>ff5e8f5a</color>
+      <scale>1.1</scale>
+      <Icon><href>http://maps.google.com/mapfiles/kml/paddle/3.png</href></Icon>
+    </IconStyle>
+  </Style>
+    <Placemark>
+      <name>08:00 · Desayuno cerca del hotel</name>
+      <description><![CDATA[]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-74.0025,40.759,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>08:45 · Metro hacia Harlem</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 línea A/C]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.95,40.79,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>10:00 · Servicio gospel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min<br/>Llegad 30–40 min antes; vestimenta cuidada, móvil guardado.<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Harlem%20gospel%20church%20New%20York">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9455,40.809,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>11:40 · Paseo por Harlem</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 8 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9478,40.8062,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:10 · Entrada norte Central Park (Harlem Meer)</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 12 min<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Charles%20A%20Dana%20Discovery%20Center%20Central%20Park">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9494,40.7969,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>13:10 · Conservatory Garden</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 5 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9525,40.7947,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>14:15 · North Woods / The Loch</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶 10 min]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9563,40.7962,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>15:15 · Circuito en bicicleta</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚲 Citi Bike]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.965,40.785,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>17:30 · Bethesda Terrace y Bow Bridge</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚶<br/><a href="https://www.google.com/maps/search/?api=1&amp;query=Bethesda%20Terrace%20Central%20Park">Ver ficha / más info</a>]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-73.9714,40.7735,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>19:00 · Regreso al hotel</name>
+      <description><![CDATA[Cómo llegar desde la parada anterior: 🚇 metro]]></description>
+      <styleUrl>#day3pin</styleUrl>
+      <Point><coordinates>-74.0021,40.759,0</coordinates></Point>
+    </Placemark>
+</Document>
+</kml>
