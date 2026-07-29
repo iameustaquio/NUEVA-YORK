@@ -165,7 +165,7 @@ import { Map as MLMap, Marker, Popup, NavigationControl, GeolocateControl, Attri
    se asume: la página en sí ya necesitó red para llegar al móvil.
 --------------------------------------------------------- */
 const HOTEL = {name:"YOTEL New York Times Square", lat:40.7590, lng:-74.0021};
-const DAY_COLORS = {1:"#c96a3f",2:"#1c3a4a",3:"#5a8f5e",4:"#b5502a",5:"#4a72a0",6:"#8a4fae",7:"#c9a13f"};
+const DAY_COLORS = {1:"#c96a3f",2:"#1c3a4a",3:"#5a8f5e",4:"#b5502a",5:"#4a72a0",6:"#8a4fae",7:"#c9a13f","extras":"#2f8f8a"};
 function gmaps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
 function gplace(id){ return "https://www.google.com/maps/place/?q=place_id:" + id; }
 
@@ -284,6 +284,18 @@ const DAYS = [
    {t:"23:00",n:"Recogida en el YOTEL",lat:40.7590,lng:-74.0021,isHotel:true}
   ]}
 ];
+
+/* "Extras": sitios que nos interesan pero no encajan con claridad en la
+   ruta de ningún día concreto. No es un recorrido secuencial (por eso
+   no llevan hora ni se les traza una línea de ruta), solo un cajón de
+   paradas sueltas por si un día os pilla cerca o os sobra tiempo. */
+const EXTRAS = {
+ id:"extras", label:"Extras", title:"Lugares de interés sueltos",
+ goal:"Sitios que nos interesan pero no encajan bien en la ruta de ningún día. Sin orden ni hora fija: si un día os pilla cerca, aprovechad.",
+ stops:[
+  {n:"S'MAC (mac and cheese)",lat:40.7295,lng:-73.9855,note:"197 1st Ave, East Village. Único local activo de S'MAC en NYC (el segundo, un kiosco, ya cerró). Queda algo lejos de todas las rutas — id si un día váis sobrados de tiempo por el East Village/Union Square.",hours:"Todos los días: 11:00–23:00",cat:"food",isNew:true,link:gmaps("S'MAC East Village NYC")}
+ ]
+};
 
 const ZONES = [
  {name:"Midtown / Times Square",lat:40.7580,lng:-73.9880,r:1000},
@@ -565,6 +577,25 @@ function createMarkers(){
       return {marker:marker, stop:stop, index:i};
     });
   });
+  createExtrasMarkers();
+}
+
+/* Los "extras" son un cajón suelto, no una ruta: solo marcadores, sin
+   iconos de transporte ni línea de ruta conectándolos entre sí. */
+let extrasMarkerRefs = [];
+function createExtrasMarkers(){
+  extrasMarkerRefs = EXTRAS.stops.map(function(stop, i){
+    const el = markerEl(DAY_COLORS.extras, i+1, true, stop.cat, stop.warn);
+    el.addEventListener('click', function(){
+      showPopup(stop, currentView.type==='extras' ? null : 'Extras');
+      highlightChip(i);
+    });
+    const marker = new Marker({element:el}).setLngLat([stop.lng, stop.lat]).addTo(map);
+    return {marker:marker, stop:stop, index:i};
+  });
+}
+function setExtrasVisible(visible){
+  extrasMarkerRefs.forEach(function(m){ m.marker.getElement().style.display = visible?'flex':'none'; });
 }
 
 function setDayVisible(id, visible){
@@ -759,10 +790,17 @@ function applyCurrentView(){
     DAYS.forEach(function(d){ setDayVisible(d.id, d.id===currentView.day.id); });
     setZonesVisible(false);
     setHotelMarkerVisible(false);
+    setExtrasVisible(false);
+  } else if(currentView.type==='extras'){
+    DAYS.forEach(function(d){ setDayVisible(d.id, false); });
+    setZonesVisible(false);
+    setHotelMarkerVisible(false);
+    setExtrasVisible(true);
   } else {
     DAYS.forEach(function(d){ setDayVisible(d.id, dayToggleState[d.id]); });
     setZonesVisible(true);
     setHotelMarkerVisible(true);
+    setExtrasVisible(false);
   }
 }
 
@@ -810,6 +848,29 @@ function showGeneral(){
   document.getElementById('legend').style.display='block';
   hasRenderedOnce = true;
 }
+
+function showExtras(){
+  stopPlayback();
+  currentView = {type:'extras', day:EXTRAS};
+  document.getElementById('legend').style.display='none';
+  closePopup();
+  applyCurrentView();
+  const bounds = new LngLatBounds();
+  EXTRAS.stops.forEach(function(s){ bounds.extend([s.lng, s.lat]); });
+  if(EXTRAS.stops.length===1){
+    map.flyTo({center:[EXTRAS.stops[0].lng, EXTRAS.stops[0].lat], zoom:15, pitch:0, bearing:0, duration: hasRenderedOnce?650:0});
+  } else {
+    map.fitBounds(bounds, {padding:{top:130,bottom:170,left:50,right:50}, duration: hasRenderedOnce?650:0, maxZoom:16, pitch:0, bearing:0});
+  }
+  document.getElementById('dc-title').textContent = '📌 '+EXTRAS.title;
+  document.getElementById('dc-goal').textContent = EXTRAS.goal;
+  document.getElementById('daycard').style.display='block';
+  document.getElementById('reopen').style.display='none';
+  document.getElementById('weatherchip').style.display='none';
+  buildTimeline(EXTRAS);
+  hasRenderedOnce = true;
+}
+
 function toggleDay(id, visible){
   dayToggleState[id] = visible;
   if(currentView.type==='general') setDayVisible(id, visible);
@@ -856,7 +917,7 @@ function playStep(day, idx){
   playState.timer = setTimeout(function(){ playStep(day, idx+1); }, special ? 3800 : 2100);
 }
 function togglePlay(){
-  if(currentView.type!=='day') return;
+  if(currentView.type!=='day' && currentView.type!=='extras') return;
   const day = currentView.day;
   if(playState && playState.dayId===day.id){ stopPlayback(); return; }
   stopPlayback();
@@ -872,6 +933,7 @@ window.togglePlay = togglePlay;
 --------------------------------------------------------- */
 let tabHtml = '<div id="tabs-scroll"><button class="tab active" id="tab-general" onclick="selectTab(\'general\')">🗺️ General</button>';
 DAYS.forEach(function(d){ tabHtml += '<button class="tab" id="tab-'+d.id+'" onclick="selectTab('+d.id+')">'+d.label+'</button>'; });
+tabHtml += '<button class="tab" id="tab-extras" onclick="selectTab(\'extras\')">📌 Extras</button>';
 tabHtml += '</div><button id="satbtn" onclick="toggleSatellite()" title="Vista satélite">🛰️</button><button id="searchbtn" onclick="toggleSearch()" title="Buscar una parada">🔍</button>';
 document.getElementById('tabs').innerHTML = tabHtml;
 
@@ -892,6 +954,7 @@ window.toggleSatellite = toggleSatellite;
 --------------------------------------------------------- */
 const SEARCH_INDEX = [];
 DAYS.forEach(function(day){ day.stops.forEach(function(stop, i){ SEARCH_INDEX.push({day:day, index:i, stop:stop}); }); });
+EXTRAS.stops.forEach(function(stop, i){ SEARCH_INDEX.push({day:EXTRAS, index:i, stop:stop}); });
 function renderSearchResults(q){
   const box = document.getElementById('searchresults');
   const query = q.trim().toLowerCase();
@@ -899,22 +962,24 @@ function renderSearchResults(q){
   const matches = SEARCH_INDEX.filter(function(item){ return item.stop.n.toLowerCase().includes(query); }).slice(0,20);
   if(!matches.length){ box.innerHTML = '<div class="sres-empty">Sin resultados</div>'; return; }
   box.innerHTML = matches.map(function(item){
+    const dayBadge = item.day.id==='extras' ? '📌' : 'D'+item.day.id;
     return '<div class="sres" data-day="'+item.day.id+'" data-idx="'+item.index+'">'+
-      '<span class="sres-day" style="background:'+DAY_COLORS[item.day.id]+'">D'+item.day.id+'</span>'+
+      '<span class="sres-day" style="background:'+DAY_COLORS[item.day.id]+'">'+dayBadge+'</span>'+
       '<span class="sres-name">'+item.stop.n+'</span>'+
       (item.stop.t ? '<span class="sres-time">'+item.stop.t+'</span>' : '')+
     '</div>';
   }).join('');
   box.querySelectorAll('.sres').forEach(function(el){
     el.addEventListener('click', function(){
-      goToSearchResult(Number(el.dataset.day), Number(el.dataset.idx));
+      const rawId = el.dataset.day;
+      goToSearchResult(rawId==='extras' ? 'extras' : Number(rawId), Number(el.dataset.idx));
     });
   });
 }
 function goToSearchResult(dayId, idx){
   document.getElementById('searchpanel').style.display='none';
   document.getElementById('searchbtn').classList.remove('active');
-  const day = DAYS.find(function(d){ return d.id===dayId; });
+  const day = dayId==='extras' ? EXTRAS : DAYS.find(function(d){ return d.id===dayId; });
   selectTab(dayId);
   focusStop(day, idx, null);
 }
@@ -937,6 +1002,7 @@ function selectTab(id){
   document.querySelectorAll('.tab').forEach(function(el){ el.classList.remove('active'); });
   document.getElementById('tab-'+id).classList.add('active');
   if(id==='general') showGeneral();
+  else if(id==='extras') showExtras();
   else showDay(DAYS.find(function(d){ return d.id===id; }));
 }
 window.selectTab = selectTab;
