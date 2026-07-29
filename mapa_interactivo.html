@@ -13,12 +13,12 @@
   :root{
     --navy:#1c3a4a; --terracotta:#c96a3f; --cream:#f7f3ea; --ink:#26241f; --paper:#fffdf8; --line:#e7ddc9;
     --card-bg:rgba(255,253,248,.96); --card-bg-solid:#fffdf8; --card-ink:#26241f; --card-sub:#7a7466;
-    --dark-navy:rgba(28,58,74,.94);
+    --dark-navy:rgba(28,58,74,.94); --accent-text:var(--navy);
   }
   @media (prefers-color-scheme: dark){
     :root{
       --card-bg:rgba(30,32,30,.92); --card-bg-solid:#201f1c; --card-ink:#f1ece0; --card-sub:#a9a190;
-      --line:#3a382f; --cream:#232220; --dark-navy:rgba(18,30,38,.94);
+      --line:#3a382f; --cream:#232220; --dark-navy:rgba(18,30,38,.94); --accent-text:#9cc4e8;
     }
   }
   *{box-sizing:border-box;}
@@ -35,7 +35,7 @@
   .tab{ border:none; background:transparent; padding:7px 11px; font-size:12.5px; font-weight:700;
     color:#6b6455; border-radius:8px; cursor:pointer; white-space:nowrap; flex:none; }
   .tab.active{ background:var(--navy); color:#fff; }
-  #searchbtn{ flex:none; border:none; background:transparent; padding:7px 10px; font-size:14px; cursor:pointer; border-radius:8px; color:var(--navy); }
+  #searchbtn{ flex:none; border:none; background:transparent; padding:7px 10px; font-size:14px; cursor:pointer; border-radius:8px; color:var(--accent-text); }
   #searchbtn.active{ background:var(--navy); color:#fff; }
 
   #searchpanel{
@@ -76,16 +76,17 @@
   #legend .item{display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;}
   #legend input{margin:0;}
   #legend .swatch{width:11px;height:11px;border-radius:50%;flex:none;}
-  #legend .title{font-weight:700; color:var(--navy); margin-bottom:6px; font-size:12.5px;}
+  #legend .title{font-weight:700; color:var(--accent-text); margin-bottom:6px; font-size:12.5px;}
 
   #tlegend{
-    position:absolute; bottom:14px; left:10px; z-index:900; background:var(--card-bg); color:var(--card-ink);
+    position:absolute; bottom:calc(88px + env(safe-area-inset-bottom,0px)); left:10px; z-index:900;
+    background:var(--card-bg); color:var(--card-ink);
     border-radius:10px; padding:7px 10px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:11px; display:none;
   }
   #tlegend span{margin-right:10px;}
 
   #reopen{
-    position:absolute; top:58px; right:10px; z-index:900; background:var(--card-bg); color:var(--navy);
+    position:absolute; top:58px; right:10px; z-index:900; background:var(--card-bg); color:var(--accent-text);
     border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:700;
     box-shadow:0 2px 8px rgba(0,0,0,.15); cursor:pointer; display:none;
   }
@@ -117,13 +118,13 @@
   .stop-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip{ border-bottom-color:var(--card-bg-solid); }
   .stop-popup .maplibregl-popup-close-button{ font-size:17px; color:#999; padding:2px 7px; }
   @keyframes popIn{ from{opacity:0; transform:translateY(6px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
-  .stop-popup b{color:var(--navy); font-size:13.5px;}
+  .stop-popup b{color:var(--accent-text); font-size:13.5px;}
   .stop-popup .badge{display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase; padding:1px 6px; border-radius:8px; margin-right:4px; margin-bottom:4px;}
   .badge-new{background:#dff0e2; color:#2b7a3d;}
   .badge-food{background:#fde8d8; color:#b5502a;}
   .badge-warn{background:#fbe3e0; color:#a4341f;}
   .stop-popup .links{margin-top:6px; display:flex; flex-direction:column; gap:6px;}
-  .stop-popup a{display:inline-block; color:var(--navy); font-weight:700; font-size:12px;}
+  .stop-popup a{display:inline-block; color:var(--accent-text); font-weight:700; font-size:12px;}
 
   #timeline{
     position:absolute; left:0; right:0; bottom:0; z-index:800; display:none;
@@ -197,7 +198,7 @@ const DAYS = [
    {t:"19:10",n:"Times Square",lat:40.7580,lng:-73.9855,note:"Primera vuelta, sin entrar en todas las tiendas todavía.",cat:"sight",link:gmaps("Times Square New York"),tr:"🚶 15–20 min"},
    {t:"20:15",n:"Cena: Lovely's Old Fashioned",lat:40.7603697,lng:-73.9909505,note:"Hamburguesas y aros de cebolla, abierto hasta tarde.",hours:"Hoy (vie): 11:15–03:00",cat:"food",isNew:true,link:gplace("ChIJd4_SnFJZwokRBeuZ-YwGaUw"),tr:"🚶 9 min"},
    {t:"21:40",n:"Bryant Park (exterior biblioteca)",lat:40.7536,lng:-73.9832,note:"Visita interior el sábado.",cat:"park",link:gmaps("Bryant Park New York"),tr:"🚶 10 min"},
-   {t:"22:30",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚕 taxi / 🚌 M42"}
+   {t:"22:30",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚕 taxi ~20-35 min / 🚌 M42 ~20-30 min"}
   ]},
  {id:2,label:"Sáb 8",title:"Midtown, compras y teleférico",goal:"Bibliotecas, Quinta Avenida y Roosevelt Island de noche.",
   stops:[
@@ -209,16 +210,16 @@ const DAYS = [
    {t:"11:40",n:"Chrysler Building (exterior)",lat:40.7516,lng:-73.9755,cat:"sight",link:gmaps("Chrysler Building"),tr:"🚶 3 min"},
    {t:"13:00",n:"Quinta Avenida y tiendas",lat:40.7605,lng:-73.9776,note:"Victoria's Secret, San Patricio, LEGO, FAO Schwarz, Apple.",cat:"shop",link:gmaps("Fifth Avenue New York shopping"),tr:"🚶 12 min"},
    {t:"~15:00",n:"Café: Ralph's Coffee",lat:40.7589962,lng:-73.9772973,note:"Justo en el bloque de compras, sin desvío. Es el food truck/carrito, no la tienda.",hours:"Hoy: 08:00–18:00 (todos los días)",cat:"food",isNew:true,link:gplace("ChIJMaNxh5tZwokRXA1h90zrKZk")},
-   {t:"18:00",n:"Hotel y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro / 🚕"},
+   {t:"18:00",n:"Hotel y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 N/Q/R/W ~25-30 min (tramo final a pie) / 🚕 taxi"},
    {t:"19:45",n:"Cena Midtown East",lat:40.7550,lng:-73.9700,cat:"food",tr:"🚶"},
    {t:"21:05",n:"Tramway Plaza",lat:40.7570,lng:-73.9553,cat:"transit",tr:"🚶 evitar hora punta"},
-   {t:"21:15",n:"Teleférico Roosevelt Island",lat:40.7614,lng:-73.9498,note:"Manhattan iluminado + paseo por la orilla.",hours:"Hoy (sáb): 06:00–03:30, cada ~15 min",cat:"transit",link:"https://www.rioc.ny.gov/community/transportation/tram",tr:"🚡 teleférico"},
-   {t:"23:00",n:"Regreso al YOTEL",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro F"}
+   {t:"21:15",n:"Teleférico Roosevelt Island",lat:40.7614,lng:-73.9498,note:"Manhattan iluminado + paseo por la orilla. El trayecto en sí dura ~5 min.",hours:"Hoy (sáb): 06:00–03:30, cada ~15 min",cat:"transit",link:"https://www.rioc.ny.gov/community/transportation/tram",tr:"🚡 teleférico"},
+   {t:"23:00",n:"Regreso al YOTEL",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 F ~30-35 min (la parada queda a 10 min andando del tranvía)"}
   ]},
  {id:3,label:"Dom 9",title:"Harlem y Central Park (norte)",goal:"Gospel respetuoso + la parte menos turística del parque.",
   stops:[
    {t:"08:00",n:"Desayuno cerca del hotel",lat:40.7590,lng:-74.0025,isHotel:true},
-   {t:"08:45",n:"Metro hacia Harlem",lat:40.7900,lng:-73.9500,cat:"transit",tr:"🚇 línea A/C"},
+   {t:"08:45",n:"Metro hacia Harlem",lat:40.7900,lng:-73.9500,cat:"transit",tr:"🚇 A/C ~25-30 min"},
    {t:"10:00",n:"Servicio gospel",lat:40.8090,lng:-73.9455,note:"Llegad 30–40 min antes; vestimenta cuidada, móvil guardado.",cat:"sight",link:gmaps("Harlem gospel church New York"),tr:"🚶 5 min"},
    {t:"11:40",n:"Paseo por Harlem",lat:40.8062,lng:-73.9478,cat:"sight",tr:"🚶 8 min"},
    {t:"13:10",n:"Entrada norte Central Park (Harlem Meer)",lat:40.7969,lng:-73.9494,cat:"park",link:gmaps("Charles A Dana Discovery Center Central Park"),tr:"🚶 12 min"},
@@ -226,13 +227,13 @@ const DAYS = [
    {t:"14:15",n:"North Woods / The Loch",lat:40.7962,lng:-73.9563,cat:"park",tr:"🚶 10 min"},
    {t:"15:15",n:"Circuito en bicicleta",lat:40.7850,lng:-73.9650,cat:"park",tr:"🚲 Citi Bike"},
    {t:"17:30",n:"Bethesda Terrace y Bow Bridge",lat:40.7735,lng:-73.9714,cat:"park",link:gmaps("Bethesda Terrace Central Park"),tr:"🚶"},
-   {t:"19:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 metro"}
+   {t:"19:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 B/C ~30-35 min"}
   ]},
  {id:4,label:"Lun 10",title:"Historia Natural, Tribeca, SoHo y Greenwich",goal:"Museo por la mañana + ruta lineal Tribeca → SoHo → Greenwich.",
   stops:[
    {t:"~08:00",n:"Desayuno: Levain Bakery (UWS)",lat:40.779959,lng:-73.980298,note:"Abre a las 8:00, de camino al museo — sin desvío.",hours:"Hoy (lun): 08:00–20:00 (cola larga en hora punta)",cat:"food",isNew:true,link:gplace("ChIJ6SmehIlYwokRaO14xlmbWZU")},
    {t:"09:00",n:"Museo de Historia Natural",lat:40.7813,lng:-73.9740,hours:"Hoy (lun): 10:00–17:30 (última entrada 17:00)",cat:"sight",link:gmaps("American Museum of Natural History"),tr:"🚶 3 min"},
-   {t:"12:10",n:"Metro hacia Tribeca",lat:40.7200,lng:-74.0060,cat:"transit",tr:"🚇 línea C"},
+   {t:"12:10",n:"Metro hacia Tribeca",lat:40.7200,lng:-74.0060,cat:"transit",tr:"🚇 C (directo, sin transbordo) ~40-45 min"},
    {t:"13:00",n:"Bubby's Tribeca + fotomatón",lat:40.7186,lng:-74.0093,note:"120 Hudson St. Revelado analógico, tarda unos minutos.",hours:"Hoy (lun): 08:00–22:00",cat:"food",link:"https://www.bubbys.com/",tr:"🚶 6 min"},
    {t:"13:45",n:"Café: Rigor Hill Market",lat:40.719225,lng:-74.005995,note:"227 W Broadway — literalmente de camino a SoHo.",hours:"Hoy (lun): 08:00–19:00 (negocio pequeño, confirmad)",cat:"food",isNew:true,link:gplace("ChIJm0F0fiFZwokRfuBjDeS7w7U"),tr:"🚶 5 min"},
    {t:"14:15",n:"SoHo y compras",lat:40.7233,lng:-74.0030,cat:"shop",link:gmaps("SoHo New York shopping"),tr:"🚶 10 min"},
@@ -240,7 +241,7 @@ const DAYS = [
    {t:"17:45",n:"Washington Square Park",lat:40.7308,lng:-73.9973,cat:"park",link:gmaps("Washington Square Park"),tr:"🚶 6 min"},
    {t:"18:30",n:"Cóctel: The Up & Up",lat:40.729700,lng:-74.000488,note:"~16–18$ el cóctel, sin entrada, ambiente cuidado.",hours:"Hoy (lun): 17:00–01:00",cat:"bar",isNew:true,link:gplace("ChIJN0f2iJFZwokRt53h0ISm3eE"),tr:"🚶 3 min"},
    {t:"19:15",n:"Cena: Joe's Pizza",lat:40.7306,lng:-74.0021,note:"7 Carmine St, porciones clásicas para compartir.",hours:"Hoy (lun): 10:00–03:00",cat:"food",link:"https://www.joespizzanyc.com/locations2",tr:"🚶 5 min"},
-   {t:"20:15",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A/C/E"}
+   {t:"20:15",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A/C/E ~20-25 min"}
   ]},
  {id:5,label:"Mar 11",title:"Compras populares y SUMMIT",goal:"Mañana flexible, descanso real y SUMMIT al atardecer.",
   stops:[
@@ -249,14 +250,14 @@ const DAYS = [
    {t:"11:05",n:"Disney Store Times Square",lat:40.7592,lng:-73.9847,hours:"Hoy (mar): 09:00–21:00",cat:"shop",link:gmaps("Disney Store Times Square"),tr:"🚶 6 min"},
    {t:"12:30",n:"Comida: Blue Dog Cookhouse & Bar",lat:40.762557,lng:-73.986967,note:"308 W 50th St, dentro de la zona de Times Square.",hours:"Hoy (mar): 08:30–22:00",cat:"food",isNew:true,link:gplace("ChIJC6xz-lZYwokRd5Gv26A3RMA"),tr:"🚶 10 min"},
    {t:"13:45",n:"Hotel y descanso",lat:40.7590,lng:-74.0021,isHotel:true},
-   {t:"16:30",n:"Hacia Grand Central",lat:40.7527,lng:-73.9772,cat:"transit",tr:"🚇 línea 7"},
+   {t:"16:30",n:"Hacia Grand Central",lat:40.7527,lng:-73.9772,cat:"transit",tr:"🚇 línea 7 ~12-18 min (1 parada, ida y vuelta a andén incluida)"},
    {t:"18:00",n:"SUMMIT One Vanderbilt",lat:40.7527,lng:-73.9787,note:"Entrad con luz, quedaos hasta el anochecer.",hours:"Hoy (mar): 08:00–00:00 (lun–vie, según la web oficial)",cat:"sight",link:gmaps("SUMMIT One Vanderbilt"),tr:"🚶 2 min"},
    {t:"20:45",n:"Cena en Midtown",lat:40.7555,lng:-73.9790,cat:"food",tr:"🚶"}
   ]},
  {id:6,label:"Mié 12",title:"Downtown, Brooklyn y rooftop",goal:"Ferry a la Libertad, 11-S, puente de Brooklyn, DUMBO y rooftop.",
   stops:[
-   {t:"08:00",n:"Desayuno y salida",lat:40.7590,lng:-74.0025,isHotel:true,tr:"🚇 A/C/E"},
-   {t:"09:00",n:"Staten Island Ferry",lat:40.7011,lng:-74.0141,note:"Ida y vuelta: Estatua de la Libertad y skyline.",hours:"24h · cada 15–30 min según la hora",cat:"transit",link:gmaps("Staten Island Ferry Terminal Manhattan"),tr:"⛴️ ferry"},
+   {t:"08:00",n:"Desayuno y salida",lat:40.7590,lng:-74.0025,isHotel:true,tr:"🚇 línea 1 (directa a South Ferry) ~30-35 min"},
+   {t:"09:00",n:"Staten Island Ferry",lat:40.7011,lng:-74.0141,note:"Ida y vuelta: Estatua de la Libertad y skyline. Cada trayecto dura ~25 min.",hours:"24h · cada 15–30 min según la hora",cat:"transit",link:gmaps("Staten Island Ferry Terminal Manhattan"),tr:"⛴️ ferry"},
    {t:"10:20",n:"Distrito Financiero",lat:40.7056,lng:-74.0134,note:"Battery Park → Charging Bull → Wall Street.",cat:"sight",link:gmaps("Charging Bull New York"),tr:"🚶 10 min"},
    {t:"11:30",n:"Oculus",lat:40.7115,lng:-74.0099,cat:"sight",link:gmaps("Oculus Westfield World Trade Center"),tr:"🚶 8 min"},
    {t:"13:30",n:"Museo del 11-S",lat:40.7115,lng:-74.0134,note:"2–2,5 horas.",hours:"Hoy (mié): 09:00–19:00 (última entrada 17:30)",cat:"sight",link:gmaps("9/11 Memorial Museum"),tr:"🚶 3 min"},
@@ -266,7 +267,7 @@ const DAYS = [
    {t:"18:20",n:"Jane's Carousel / Brooklyn Bridge Park",lat:40.7023,lng:-73.9903,cat:"park",link:gmaps("Jane's Carousel Brooklyn"),tr:"🚶 5 min"},
    {t:"19:10",n:"Squibb Park Bridge / Brooklyn Heights",lat:40.6995,lng:-73.9945,note:"Extra recortable si vais cansados.",cat:"park",link:gmaps("Squibb Park Bridge Brooklyn"),tr:"🚶 8 min"},
    {t:"20:00",n:"Time Out Market DUMBO (rooftop)",lat:40.7024,lng:-73.9903,note:"55 Water St. Cena + terraza.",hours:"Hoy (mié): 08:00–22:00",cat:"food",link:"https://www.timeout.com/time-out-market-new-york",tr:"🚶 6 min"},
-   {t:"22:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A/C o F"}
+   {t:"22:00",n:"Regreso al hotel",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 A (directo desde High St) ~25-30 min"}
   ]},
  {id:7,label:"Jue 13",title:"Flatiron, Chelsea, High Line y salida",goal:"Último día lineal; recogida en el YOTEL a las 23:00.",
   stops:[
@@ -280,7 +281,7 @@ const DAYS = [
    {t:"13:30",n:"High Line hacia el norte",lat:40.7495,lng:-74.0075,hours:"Hoy (jue): 07:00–22:00",cat:"park",link:gmaps("The High Line entrance 14th street"),tr:"🚶 sobre la High Line"},
    {t:"15:15",n:"Little Island",lat:40.7420,lng:-74.0132,hours:"Hoy (jue): 06:00–00:00",cat:"park",link:gmaps("Little Island NYC"),tr:"🚶 10 min"},
    {t:"16:00",n:"Hudson Yards",lat:40.7538,lng:-74.0026,cat:"sight",link:gmaps("Hudson Yards NYC"),tr:"🚶 12 min"},
-   {t:"18:00",n:"Maletas y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 línea 7"},
+   {t:"18:00",n:"Maletas y descanso",lat:40.7590,lng:-74.0021,isHotel:true,tr:"🚇 línea 7 ~10-15 min (1 parada)"},
    {t:"20:00",n:"Cena cerca del hotel",lat:40.7595,lng:-73.9960,cat:"food"},
    {t:"23:00",n:"Recogida en el YOTEL",lat:40.7590,lng:-74.0021,isHotel:true}
   ]}
@@ -383,6 +384,12 @@ map.addControl(new NavigationControl({showCompass:false}), 'bottom-right');
 const geolocateCtl = new GeolocateControl({positionOptions:{enableHighAccuracy:true}, trackUserLocation:true, showUserHeading:true});
 map.addControl(geolocateCtl, 'bottom-right');
 geolocateCtl.on('geolocate', function(e){ userLoc = {lat:e.coords.latitude, lng:e.coords.longitude}; });
+geolocateCtl.on('error', function(e){
+  const msg = e && e.code===1
+    ? '⚠️ Permiso de ubicación denegado. Revísalo en Ajustes → Safari → Ubicación (o Ajustes → Privacidad → Localización) y vuelve a intentarlo.'
+    : '⚠️ No se pudo obtener tu ubicación. Comprueba que tengas el GPS/ubicación activado e inténtalo de nuevo.';
+  showToast(msg, 6000);
+});
 
 let styleReady = false;
 map.on('load', function(){ styleReady = true; ensureLayers(); });
@@ -613,7 +620,7 @@ function popupHtml(stop,dayLabel){
   if(stop.t) html+=' <span style="color:#c96a3f;font-weight:700;">· '+stop.t+'</span>';
   if(dayLabel) html+='<div style="font-size:10.5px;color:var(--card-sub);margin-top:1px;">'+dayLabel+'</div>';
   if(stop.note) html+='<div style="margin-top:5px;">'+stop.note+'</div>';
-  if(stop.hours) html+='<div style="margin-top:4px;font-size:11px;"><b style="color:var(--navy);">🕐</b> '+stop.hours+'</div>';
+  if(stop.hours) html+='<div style="margin-top:4px;font-size:11px;"><b style="color:var(--accent-text);">🕐</b> '+stop.hours+'</div>';
   let links = '';
   if(stop.link) links += '<a href="'+stop.link+'" target="_blank" rel="noopener">📍 Ver en Google Maps</a>';
   if(stop.lat!=null && stop.lng!=null) links += '<a href="'+gDirectionsUrl(stop.lat,stop.lng)+'" target="_blank" rel="noopener">🧭 Cómo llegar a pie</a>';
