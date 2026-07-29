@@ -78,13 +78,6 @@
   #legend .swatch{width:11px;height:11px;border-radius:50%;flex:none;}
   #legend .title{font-weight:700; color:var(--accent-text); margin-bottom:6px; font-size:12.5px;}
 
-  #tlegend{
-    position:absolute; bottom:calc(88px + env(safe-area-inset-bottom,0px)); left:10px; z-index:900;
-    background:var(--card-bg); color:var(--card-ink);
-    border-radius:10px; padding:7px 10px; box-shadow:0 2px 10px rgba(0,0,0,.15); font-size:11px; display:none;
-  }
-  #tlegend span{margin-right:10px;}
-
   #reopen{
     position:absolute; top:58px; right:10px; z-index:900; background:var(--card-bg); color:var(--accent-text);
     border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:700;
@@ -155,7 +148,6 @@
 <div id="daycard"><span class="close" onclick="closeDayCard()">✕</span><button id="playbtn" onclick="togglePlay()" title="Reproducir el día">▶️</button><b id="dc-title"></b><span class="goal" id="dc-goal"></span><div id="weatherchip"></div></div>
 <div id="legend"></div>
 <button id="reopen" onclick="reopenCard()">ℹ️ info del día</button>
-<div id="tlegend"><span>🚶 a pie</span><span>🚇 metro</span><span>🚌 bus</span><span>🚕 taxi</span><span>🚲 bici</span><span>🚡 teleférico</span></div>
 <div id="routestatus"><span class="spin">🔄</span> Calculando rutas a pie…</div>
 <div id="toast"></div>
 <div id="timeline"></div>
@@ -733,7 +725,6 @@ function showDay(day){
   stopPlayback();
   currentView = {type:'day', day:day};
   document.getElementById('legend').style.display='none';
-  document.getElementById('tlegend').style.display='block';
   closePopup();
   applyCurrentView();
   const bounds = new LngLatBounds();
@@ -753,7 +744,6 @@ function showGeneral(){
   currentView = {type:'general'};
   document.getElementById('daycard').style.display='none';
   document.getElementById('reopen').style.display='none';
-  document.getElementById('tlegend').style.display='none';
   closePopup();
   hideTimeline();
   applyCurrentView();
