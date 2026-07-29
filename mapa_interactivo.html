@@ -35,8 +35,8 @@
   .tab{ border:none; background:transparent; padding:7px 11px; font-size:12.5px; font-weight:700;
     color:#6b6455; border-radius:8px; cursor:pointer; white-space:nowrap; flex:none; }
   .tab.active{ background:var(--navy); color:#fff; }
-  #searchbtn{ flex:none; border:none; background:transparent; padding:7px 10px; font-size:14px; cursor:pointer; border-radius:8px; color:var(--accent-text); }
-  #searchbtn.active{ background:var(--navy); color:#fff; }
+  #searchbtn, #satbtn{ flex:none; border:none; background:transparent; padding:7px 10px; font-size:14px; cursor:pointer; border-radius:8px; color:var(--accent-text); }
+  #searchbtn.active, #satbtn.active{ background:var(--navy); color:#fff; }
 
   #searchpanel{
     position:absolute; top:58px; left:10px; right:10px; z-index:1100; display:none;
@@ -429,6 +429,20 @@ function ensureLayers(){
   if(layersReady) return;
   layersReady = true;
 
+  /* Vista satélite: capa ráster (Esri World Imagery, gratuita, sin
+     clave) añadida por debajo de zonas/rutas/marcadores, oculta por
+     defecto. Al taparla encima del estilo vectorial no hace falta
+     ocultar decenas de capas del mapa base: simplemente la cubre. */
+  if(!map.getSource('satellite')){
+    map.addSource('satellite', {
+      type:'raster',
+      tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tileSize:256,
+      attribution:'Esri, Maxar, Earthstar Geographics'
+    });
+    map.addLayer({id:'satellite-layer', type:'raster', source:'satellite', layout:{visibility:'none'}});
+  }
+
   if(!map.getSource('zones')){
     map.addSource('zones', {type:'geojson', data:{type:'FeatureCollection', features: ZONES.map(function(z){
       return {type:'Feature', properties:{name:z.name}, geometry:{type:'Polygon', coordinates:circlePolygon(z.lat,z.lng,z.r)}};
@@ -679,17 +693,24 @@ function tripDateForDay(id){
 const WMO_EMOJI = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌦️',
   61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
 const weatherCache = new Map();
-function renderWeatherChip(w){
+const sunsetCache = new Map();
+let dayExtras = {weather:null, sunset:null};
+function renderDayExtras(){
   const el = document.getElementById('weatherchip');
-  if(!w){ el.style.display='none'; return; }
-  const emoji = WMO_EMOJI[w.code] || '🌡️';
-  el.textContent = emoji+' '+Math.round(w.tmax)+'°/'+Math.round(w.tmin)+'° · '+w.precip+'% lluvia';
+  const parts = [];
+  if(dayExtras.weather){
+    const w = dayExtras.weather;
+    const emoji = WMO_EMOJI[w.code] || '🌡️';
+    parts.push(emoji+' '+Math.round(w.tmax)+'°/'+Math.round(w.tmin)+'° · '+w.precip+'% lluvia');
+  }
+  if(dayExtras.sunset) parts.push('🌇 atardecer '+dayExtras.sunset);
+  if(!parts.length){ el.style.display='none'; return; }
+  el.textContent = parts.join(' · ');
   el.style.display='block';
 }
 function fetchWeatherFor(day){
   const dateStr = tripDateForDay(day.id);
-  if(weatherCache.has(dateStr)){ renderWeatherChip(weatherCache.get(dateStr)); return; }
-  renderWeatherChip(null);
+  if(weatherCache.has(dateStr)){ dayExtras.weather = weatherCache.get(dateStr); renderDayExtras(); return; }
   const url = 'https://api.open-meteo.com/v1/forecast?latitude=40.75&longitude=-74.0&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America%2FNew_York&start_date='+dateStr+'&end_date='+dateStr;
   fetch(url).then(function(res){ if(!res.ok) throw new Error('weather'); return res.json(); })
     .then(function(data){
@@ -697,8 +718,26 @@ function fetchWeatherFor(day){
       const w = {tmax:data.daily.temperature_2m_max[0], tmin:data.daily.temperature_2m_min[0],
         code:data.daily.weathercode[0], precip:data.daily.precipitation_probability_max[0]};
       weatherCache.set(dateStr, w);
-      renderWeatherChip(w);
+      dayExtras.weather = w;
+      renderDayExtras();
     }).catch(function(){ /* fuera de rango de previsión o sin red: se omite en silencio, es un extra */ });
+}
+/* Hora real de la puesta de sol (sunrise-sunset.org, sin clave de API),
+   útil porque varias paradas ("entrad con luz, quedaos hasta el
+   anochecer") dependen de la luz natural. */
+function fetchSunsetFor(day){
+  const dateStr = tripDateForDay(day.id);
+  if(sunsetCache.has(dateStr)){ dayExtras.sunset = sunsetCache.get(dateStr); renderDayExtras(); return; }
+  const url = 'https://api.sunrise-sunset.org/json?lat=40.75&lng=-74.0&date='+dateStr+'&formatted=0';
+  fetch(url).then(function(res){ if(!res.ok) throw new Error('sunset'); return res.json(); })
+    .then(function(data){
+      if(!data.results || !data.results.sunset) throw new Error('sin datos');
+      const utcDate = new Date(data.results.sunset);
+      const nyTime = new Intl.DateTimeFormat('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/New_York'}).format(utcDate);
+      sunsetCache.set(dateStr, nyTime);
+      dayExtras.sunset = nyTime;
+      renderDayExtras();
+    }).catch(function(){ /* sin red: se omite, es un extra */ });
 }
 
 /* ---------------------------------------------------------
@@ -735,7 +774,10 @@ function showDay(day){
   document.getElementById('daycard').style.display='block';
   document.getElementById('reopen').style.display='none';
   buildTimeline(day);
+  dayExtras = {weather:null, sunset:null};
+  renderDayExtras();
   fetchWeatherFor(day);
+  fetchSunsetFor(day);
   if(layersReady) enhanceWalkingRoutesFor(day);
   hasRenderedOnce = true;
 }
@@ -784,17 +826,28 @@ window.closeDayCard = closeDayCard;
 --------------------------------------------------------- */
 let playState = null;
 function stopPlayback(){
+  const wasPlaying = !!playState;
   if(playState && playState.timer) clearTimeout(playState.timer);
   playState = null;
   const btn = document.getElementById('playbtn');
   if(btn){ btn.textContent='▶️'; btn.classList.remove('active'); }
+  if(wasPlaying) map.easeTo({bearing:currentView.type==='day'?-12:0, pitch:currentView.type==='day'?50:0, duration:600});
 }
 function playStep(day, idx){
   if(!playState || playState.dayId!==day.id) return;
   if(idx >= day.stops.length){ stopPlayback(); return; }
   playState.index = idx;
-  focusStop(day, idx, null);
-  playState.timer = setTimeout(function(){ playStep(day, idx+1); }, 2700);
+  const stop = day.stops[idx];
+  /* Vuelo más cinematográfico que un tap normal: zoom cercano fijo y un
+     ligero giro de cámara en cada parada, como un tráiler del día. Las
+     paradas "con encanto" (comida, sitios, bares) se disfrutan más
+     tiempo antes de saltar a la siguiente. */
+  const bearing = (map.getBearing() + 9) % 360;
+  map.flyTo({center:[stop.lng, stop.lat], zoom:16.3, pitch:55, bearing:bearing, duration:1100, essential:true});
+  showPopup(stop, null);
+  highlightChip(idx);
+  const special = stop.cat==='sight' || stop.cat==='food' || stop.cat==='bar';
+  playState.timer = setTimeout(function(){ playStep(day, idx+1); }, special ? 3800 : 2100);
 }
 function togglePlay(){
   if(currentView.type!=='day') return;
@@ -813,8 +866,20 @@ window.togglePlay = togglePlay;
 --------------------------------------------------------- */
 let tabHtml = '<div id="tabs-scroll"><button class="tab active" id="tab-general" onclick="selectTab(\'general\')">🗺️ General</button>';
 DAYS.forEach(function(d){ tabHtml += '<button class="tab" id="tab-'+d.id+'" onclick="selectTab('+d.id+')">'+d.label+'</button>'; });
-tabHtml += '</div><button id="searchbtn" onclick="toggleSearch()" title="Buscar una parada">🔍</button>';
+tabHtml += '</div><button id="satbtn" onclick="toggleSatellite()" title="Vista satélite">🛰️</button><button id="searchbtn" onclick="toggleSearch()" title="Buscar una parada">🔍</button>';
 document.getElementById('tabs').innerHTML = tabHtml;
+
+/* ---------------------------------------------------------
+   VISTA SATÉLITE
+--------------------------------------------------------- */
+let satelliteOn = false;
+function toggleSatellite(){
+  if(!map.getLayer('satellite-layer')) return;
+  satelliteOn = !satelliteOn;
+  map.setLayoutProperty('satellite-layer', 'visibility', satelliteOn?'visible':'none');
+  document.getElementById('satbtn').classList.toggle('active', satelliteOn);
+}
+window.toggleSatellite = toggleSatellite;
 
 /* ---------------------------------------------------------
    BUSCADOR
